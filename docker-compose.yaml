@@ -2,7 +2,7 @@ version: '2.1'
 
 services:
 
-  query_db:
+  query_db_api:
     build:
       context: .
       dockerfile: Dockerfile
