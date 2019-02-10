@@ -1,0 +1,120 @@
+openapi: 3.0.0
+info:
+  description: ''
+  version: 0.1.0
+  title: Query DB
+tags:
+  - name: Query DB
+    description: ''
+paths:
+  /query/post:
+    post:
+      tags:
+        - query
+      summary: make and store a new query
+      description: ''
+      operationId: swagger_server.controllers.query_db_functions.post_query
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Authentication error
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Query'
+        description: query object
+        required: true
+  /query/get:
+    get:
+      tags:
+        - query
+      summary: retrieve query
+      description: ''
+      operationId: swagger_server.controllers.query_db_functions.get_query
+      parameters:
+        - in: query
+          name: id
+          description: query id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid input
+        '401':
+          description: Authentication error
+        '409':
+          description: Conflict
+  /query/get_by_customer:
+    get:
+      tags:
+        - query
+      summary: retrieve queries by customer
+      description: ''
+      operationId: swagger_server.controllers.query_db_functions.get_queries_by_customer
+      parameters:
+        - in: query
+          name: customer_id
+          description: customer id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Authentication error
+        '409':
+          description: Conflict
+servers:
+  - url: 'http://localhost:8000/v0.1'
+components:
+  schemas:
+    Query:
+      type: object
+      properties:
+        customer_id:
+          type: string
+        event:
+          type: object
+          properties:
+            type:
+              type: string
+            name:
+              type: string
+            start_date:
+              type: string
+            start_time:
+              type: string
+            end_date:
+              type: string
+            end_time:
+              type: string
+            info:
+              type: string
+            flyer:
+              type: string
+        query:
+          type: object
+          properties:
+            details:
+              type: array
+              items:
+                type: object
+                properties:
+                  university_id: 
+                    type: string
+                  degree_id:
+                    type: string
+                  course_id:
+                    type: string
+                  absolute:
+                    type: integer
+                  percentage:
+                    type: integer
+      xml:
+        name: Query

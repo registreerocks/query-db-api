@@ -1,0 +1,42 @@
+version: '2.1'
+
+services:
+
+  query_db:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      AUTH0_DOMAIN: "registree.eu.auth0.com"
+      API_IDENTIFIER: "https://registree.rocks/apis"
+      ALGORITHMS: "['RS256']"
+      BIGCHAINDDB_URL: "localhost:8000"
+    depends_on:
+      - mongodb
+    networks:
+      - backbone
+
+  mongodb:
+    image: mongo:3.6
+    command: mongod
+    networks:
+      - backbone
+
+  nginx:
+    restart: always
+    build: ./nginx
+    links:
+      - query_db
+    ports:
+      - "2087:2087"
+    volumes:
+      - ~/cert:/etc/cert
+    networks:
+      - backbone
+      
+networks: 
+  backbone:
+    driver: bridge
+    

@@ -1,0 +1,8 @@
+venv
+playground
+.ipynb_checkpoints
+.vscode
+*.egg-info
+__pycache__
+Dockerfile-dev
+docker-compose-dev.yaml
