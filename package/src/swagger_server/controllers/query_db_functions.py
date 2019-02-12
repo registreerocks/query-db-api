@@ -67,11 +67,11 @@ def _query(_type, _id, item, token):
     if item.get('absolute'):
         payload = {_type + '_id': _id, 'x': item.get('absolute')}
         response = requests.get(BIGCHAINDB_URL + '/query/' + _type + '/top_x', params=payload, headers=headers)
-        return json.loads(response.text())
+        return json.loads(response.text)
     elif item.get('percentage'):
         payload = {_type + '_id': _id, 'x': item.get('percentage')}
         response = requests.get(BIGCHAINDB_URL + '/query/' + _type + '/top_x_percent', params=payload, headers=headers)
-        return json.loads(response.text())
+        return json.loads(response.text)
     else:
         return {"ERROR": "No filter given."}, 400
 
