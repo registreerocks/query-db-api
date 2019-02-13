@@ -24,18 +24,21 @@ def post_query(body):
     details = query.get('details')
     query_results = []
     for item in details:
-        query = {
+        query_result = {
             'university_id': item.get('university_id'),
             'degree_id': item.get('degree_id'),
             'course_id': item.get('course_id')
         }
-        if item.get('course_id'):
-            query['result'] = _query('course', item.get('course_id'), item, token)
-        elif item.get('degree_id'):
-            query['result'] = _query('degree', item.get('degree_id'), item, token)
-        else:
-            query['result'] = {}
-        query_results.append(query)
+        try:
+            if item.get('course_id'):
+                query_result['result'] = _query('course', item.get('course_id'), item, token)
+            elif item.get('degree_id'):
+                query_result['result'] = _query('degree', item.get('degree_id'), item, token)
+            else:
+                query_result['result'] = {}
+        except ValueError as exp:
+            return {"ERROR": exp}
+        query_results.append(query_result)
     query['results'] = query_results
     query['responses'] = _notify_students(query_results)
     query['timestamp'] = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M')
@@ -67,19 +70,25 @@ def _query(_type, _id, item, token):
     if item.get('absolute'):
         payload = {_type + '_id': _id, 'x': item.get('absolute')}
         response = requests.get(BIGCHAINDB_URL + '/query/' + _type + '/top_x', params=payload, headers=headers)
-        return json.loads(response.text)
+        if response.status_code == 200:
+            return json.loads(response.text)
+        else:
+            raise ValueError('Query not possible')
     elif item.get('percentage'):
         payload = {_type + '_id': _id, 'x': item.get('percentage')}
         response = requests.get(BIGCHAINDB_URL + '/query/' + _type + '/top_x_percent', params=payload, headers=headers)
-        return json.loads(response.text)
+        if response.status_code == 200:
+            return json.loads(response.text)
+        else:
+            raise ValueError('Query not possible')
     else:
-        return {"ERROR": "No filter given."}, 400
+        raise ValueError('No filter given.')
 
 def _notify_students(query_results):
     notifications = {}
-    for _, results in query_results.items():
-        for student_id, _ in results.items():
-            notifications[student_id] = 'sent'
+    for result in query_results:
+        for student in result['result']:
+            notifications[student['student_address']] = 'sent'
     return notifications
 
 def _stringify_object_id(result):
