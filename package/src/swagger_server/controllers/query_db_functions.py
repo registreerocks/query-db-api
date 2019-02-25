@@ -55,7 +55,7 @@ def update_status(body):
         return {'ERROR': 'No matching data found.'}, 409
     else:
         student_record = _set_status(body, result)
-        return query_details.update_one({'_id': ObjectId(body.get('id'))}, {'$set': {'query.responses.' + body.get('student_id'): student_record}}, upsert=False)
+        return query_details.update_one({'_id': ObjectId(body.get('id'))}, {'$set': {'query.responses.' + body.get('student_address'): student_record}}, upsert=False)
 
 def _query(details, token):
     query_results = []
