@@ -109,6 +109,7 @@ def _notify_students(query_results):
     return notifications
 
 def _compute_ratios(results):
+    updated_results = []
     for result in results:
         responses = result.get('query').get('responses')
         viewed = responded = accepted = 0
@@ -120,7 +121,8 @@ def _compute_ratios(results):
             if value['accepted']:
                 accepted += 1
         result['query']['metrics'] = {'viewed': viewed / len(responses), 'responded': responded / len(responses), 'accepted': accepted / len(responses)}
-    return results
+        updated_results.append(result)
+    return updated_results
 
 def _set_status(body, result):
     student_record = result.get('query').get('responses').get(body.get('student_address'))
