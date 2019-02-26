@@ -25,6 +25,8 @@ services:
     command: mongod
     networks:
       - backbone
+    volumes:
+      - ./mongodata:/data/db
       
 networks: 
   backbone:
