@@ -7,3 +7,4 @@ playground
 __pycache__
 Dockerfile-dev
 docker-compose-dev.yaml
+.pytest_cache

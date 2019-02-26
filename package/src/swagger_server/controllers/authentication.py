@@ -9,7 +9,7 @@ from jose import jwt
 
 AUTH0_DOMAIN = env.get("AUTH0_DOMAIN")
 API_IDENTIFIER = env.get("API_IDENTIFIER")
-ALGORITHMS = eval(env.get("ALGORITHMS"))
+ALGORITHMS = eval(env.get("ALGORITHMS", "None"))
 
 
 def get_token_auth_header():
