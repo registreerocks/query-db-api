@@ -70,8 +70,8 @@ paths:
           description: Authentication error
         '409':
           description: Conflict
-  /query/update_status:
-    put:
+  /query/update_status/{id}:
+    post:
       tags:
         - query
       summary: update response status by student
@@ -84,6 +84,13 @@ paths:
           description: Authentication error
         '409':
           description: Conflict
+      parameters:
+        - name: id
+          in: path
+          description: ID of event to be updated
+          required: true
+          schema:
+            type: string
       requestBody:
         content:
           application/json:
@@ -152,8 +159,6 @@ components:
     Update:
       type: object
       properties:
-        id:
-          type: string
         student_address:
           type: string
         viewed:
