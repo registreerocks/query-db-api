@@ -10,7 +10,8 @@ from freezegun import freeze_time
 from src.swagger_server.controllers.query_db_functions import (_compute_ratios,
                                                                _notify_students,
                                                                _query,
-                                                               _set_status)
+                                                               _set_status,
+                                                               _update_event_details)
 
 
 @httpretty.activate
@@ -122,6 +123,17 @@ def test_compute_ratio():
     expected_output = [event]
     results = [_get_event()]
     assert(_compute_ratios(results) == expected_output)
+
+def test_update_event_details():
+    result = _get_event_details()
+    body = {
+        'type': 'recruiting',
+        'message': 'Hi there!'
+    }
+    expected_output = _get_event_details().get('event')
+    expected_output['type'] = 'recruiting'
+    expected_output['message'] = 'Hi there!'
+    assert(_update_event_details(body, result) == expected_output)
     
 
 def _get_query_result():
@@ -160,5 +172,18 @@ def _get_event():
                     "accepted": True
                 }
             }
+        }
+    }
+
+def _get_event_details():
+    return {
+        "event": {
+            "type": "showcase",
+            "name": "Company XYZ Showcase",
+            "start_date": "2019-02-01T10:00Z",
+            "address": "1234 Main St, Cool City, CA 98765",
+            "info": "The event is only for the tallest students.",
+            "flyer": "https://ipfs.io/ipfs/QmTkzDwWqPbnAh5YiV5VwcTLnGdwSNsNTn2aDxdXBFca7D/example#/ipfs/QmTDMoVqvyBkNMRhzvukTDznntByUNDwyNdSfV8dZ3VKRC/readme.md",
+            "message": "Hello World!"
         }
     }
