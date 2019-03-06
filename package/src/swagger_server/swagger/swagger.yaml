@@ -160,3 +160,5 @@ components:
           type: boolean
         accepted:
           type: boolean
+        attended:
+          type: boolean

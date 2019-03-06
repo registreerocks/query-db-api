@@ -104,7 +104,8 @@ def _notify_students(query_results):
                 'sent': datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M'),
                 'viewed': '',
                 'responded': '',
-                'accepted': False
+                'accepted': False,
+                'attended': False
             }
     return notifications
 
@@ -112,7 +113,7 @@ def _compute_ratios(results):
     updated_results = []
     for result in results:
         responses = result.get('query').get('responses')
-        viewed = responded = accepted = 0
+        viewed = responded = accepted = attended = 0
         for _, value in responses.items():
             if value['viewed']:
                 viewed += 1
@@ -120,7 +121,14 @@ def _compute_ratios(results):
                 responded += 1
             if value['accepted']:
                 accepted += 1
-        result['query']['metrics'] = {'viewed': viewed / len(responses), 'responded': responded / len(responses), 'accepted': accepted / len(responses)}
+            if value['attended']:
+                accepted += 1
+        result['query']['metrics'] = {
+            'viewed': viewed / len(responses), 
+            'responded': responded / len(responses), 
+            'accepted': accepted / len(responses), 
+            'attended': attended / len(responses)
+            }
         updated_results.append(result)
     return updated_results
 
@@ -131,6 +139,8 @@ def _set_status(body, result):
     elif 'accepted' in body:
         student_record['responded'] = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M')
         student_record['accepted'] = body.get('accepted')
+    elif 'attended' in body:
+        student_record['attended'] = body.get('attended')
     return student_record
 
 def _stringify_object_id(result):
