@@ -54,13 +54,15 @@ def test_notify_students():
             "sent": "2012-01-01 14:00",
             "viewed": "",
             "responded": "",
-            "accepted": False
+            "accepted": False,
+            "attended": False
         },
         "0xDBEd414a980d757234Bfb2684999afB7aE799240": {
             "sent": "2012-01-01 14:00",
             "viewed": "",
             "responded": "",
-            "accepted": False
+            "accepted": False,
+            "attended": False
         }
     }
     assert(_notify_students(result) == expected_output)
@@ -77,7 +79,8 @@ def test_set_status_viewed():
         "sent": "2012-01-01 14:00",
         "viewed": "2012-01-01 16:00",
         "responded": "",
-        "accepted": False
+        "accepted": False,
+        "attended": False
     }
     assert(_set_status(body, result) == expected_output)
 
@@ -93,7 +96,8 @@ def test_set_status_accepted_true():
         "sent": "2012-01-01 14:00",
         "viewed": "",
         "responded": "2012-01-01 16:01",
-        "accepted": True
+        "accepted": True,
+        "attended": False
     }
     assert(_set_status(body, result) == expected_output)
 
@@ -109,7 +113,24 @@ def test_set_status_accepted_false():
         "sent": "2012-01-01 14:00",
         "viewed": "",
         "responded": "2012-01-01 16:01",
-        "accepted": False
+        "accepted": False,
+        "attended": False
+    }
+    assert(_set_status(body, result) == expected_output)
+
+def test_set_status_attended_true():
+    body = {
+        "id": "12345",
+        "student_address": "0xDBEd414a980d757234Bfb2684999afB7aE799240",
+        "attended": True
+    }
+    result = _get_event()
+    expected_output = {
+        "sent": "2012-01-01 14:00",
+        "viewed": "2012-01-01 15:00",
+        "responded": "2012-01-01 15:01",
+        "accepted": True,
+        "attended": True
     }
     assert(_set_status(body, result) == expected_output)
 
@@ -118,7 +139,8 @@ def test_compute_ratio():
     event['query']['metrics'] = {
         'viewed': 0.5, 
         'responded': 0.5, 
-        'accepted': 0.5
+        'accepted': 0.5,
+        'attended': 0
     }
     expected_output = [event]
     results = [_get_event()]
@@ -163,13 +185,15 @@ def _get_event():
                     "sent": "2012-01-01 14:00",
                     "viewed": "",
                     "responded": "",
-                    "accepted": False
+                    "accepted": False,
+                    "attended": False
                 },
                 "0xDBEd414a980d757234Bfb2684999afB7aE799240": {
                     "sent": "2012-01-01 14:00",
                     "viewed": "2012-01-01 15:00",
                     "responded": "2012-01-01 15:01",
-                    "accepted": True
+                    "accepted": True,
+                    "attended": False
                 }
             }
         }
