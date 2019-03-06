@@ -61,6 +61,18 @@ def update_status(id, body):
         query_details.update_one({'_id': ObjectId(id)}, {'$set': {'query.responses.' + body.get('student_address'): student_record}}, upsert=False)
         return get_query(id)
 
+@requires_auth
+@requires_scope('registree', 'recruiter')
+@check_id
+def update(id, body):
+    result = query_details.find_one({'_id': ObjectId(id)})
+    if not result:
+        return {'ERROR': 'No matching data found.'}, 409
+    else:
+        event = _update_event_details(body, result)
+        query_details.update_one({'_id': ObjectId(id)}, {'$set': {'event': event}}, upsert=False)
+        return get_query(id)
+
 def _query(details, token):
     query_results = []
     for item in details:
@@ -146,6 +158,12 @@ def _set_status(body, result):
     elif 'attended' in body:
         student_record['attended'] = body.get('attended')
     return student_record
+
+def _update_event_details(body, result):
+    event = result.get('event')
+    for key, value in body.items():
+        event[key] = value
+    return event
 
 def _stringify_object_id(result):
     stringified_result = []
