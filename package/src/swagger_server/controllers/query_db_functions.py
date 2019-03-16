@@ -62,7 +62,7 @@ def update_status(id, body):
         return get_query(id)
 
 @requires_auth
-@requires_scope('registree', 'recruiter')
+@requires_scope('registree', 'recruiter', 'student')
 @check_id
 def update(id, body):
     result = query_details.find_one({'_id': ObjectId(id)})
