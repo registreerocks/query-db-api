@@ -73,6 +73,12 @@ def update(id, body):
         query_details.update_one({'_id': ObjectId(id)}, {'$set': {'event': event}}, upsert=False)
         return get_query(id)
 
+@requires_auth
+@requires_scope('registree', 'student')
+def get_queries_by_student(student_address):
+    results = query_details.find({'query.results.result.student_address': student_address})
+    return _build_student_result(student_address, results)
+
 def _query(details, token):
     query_results = []
     for item in details:
@@ -164,6 +170,20 @@ def _update_event_details(body, result):
     for key, value in body.items():
         event[key] = value
     return event
+
+def _build_student_result(student_address, results):
+    student_results = []
+    for result in results:
+        student_result = {
+            '_id': str(result.get('_id')),
+            'customer_id': result.get('customer_id'),
+            'event': result.get('event'),
+            'response': result.get('query').get('responses').get(student_address),
+            'timestamp': result.get('query').get('timestamp'),
+            'qr': json.dumps({'query_id': str(result.get('_id')), 'student_address': student_address})
+        }
+        student_results.append(student_result)
+    return student_results
 
 def _stringify_object_id(result):
     stringified_result = []
