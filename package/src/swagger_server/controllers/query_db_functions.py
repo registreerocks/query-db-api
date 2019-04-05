@@ -50,7 +50,7 @@ def get_queries_by_customer(customer_id):
         return {'ERROR': 'No matching data found.'}, 409
 
 @requires_auth
-@requires_scope('registree', 'recruiter')
+@requires_scope('registree', 'recruiter', 'student')
 @check_id
 def update_status(id, body):
     result = query_details.find_one({'_id': ObjectId(id)})
