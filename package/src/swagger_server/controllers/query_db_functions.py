@@ -49,7 +49,7 @@ def get_queries_by_customer(customer_id):
     else:
         return {'ERROR': 'No matching data found.'}, 409
 
-@check_id
+#@check_id
 def update_status(id, body):
     result = query_details.find_one({'_id': ObjectId(id)})
     if not result:
