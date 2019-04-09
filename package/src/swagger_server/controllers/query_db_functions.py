@@ -138,12 +138,12 @@ def _compute_ratios(results):
             if value['accepted']:
                 accepted += 1
             if value['attended']:
-                accepted += 1
+                attended += 1
         result['query']['metrics'] = {
-            'viewed': viewed / len(responses), 
-            'responded': responded / len(responses), 
-            'accepted': accepted / len(responses), 
-            'attended': attended / len(responses)
+            'viewed': viewed, 
+            'responded': responded, 
+            'accepted': accepted, 
+            'attended': attended
             }
         updated_results.append(result)
     return updated_results
