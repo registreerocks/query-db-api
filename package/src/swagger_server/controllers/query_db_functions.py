@@ -31,13 +31,7 @@ def post_query(body):
 @requires_scope('registree', 'recruiter')
 @check_id
 def get_query(id):
-    result = query_details.find_one({'_id': ObjectId(id)})
-    if result:
-        result['_id'] = str(result['_id'])
-        metrics_result = _compute_ratios([result])[0]
-        return metrics_result
-    else:
-        return {'ERROR': 'No matching data found.'}, 409
+    return _get_query(id)
 
 @requires_auth
 @requires_scope('registree', 'recruiter')
@@ -49,9 +43,9 @@ def get_queries_by_customer(customer_id):
     else:
         return {'ERROR': 'No matching data found.'}, 409
 
-#@check_id
-#@requires_auth
-#@requires_scope('registree', 'recruiter', 'student')
+@check_id
+@requires_auth
+@requires_scope('registree', 'recruiter', 'student')
 def update_status(id, body):
     result = query_details.find_one({'_id': ObjectId(id)})
     if not result:
@@ -59,7 +53,7 @@ def update_status(id, body):
     else:
         student_record = _set_status(body, result)
         query_details.update_one({'_id': ObjectId(id)}, {'$set': {'query.responses.' + body.get('student_address'): student_record}}, upsert=False)
-        return get_query(id)
+        return _get_query(id)
 
 @requires_auth
 @requires_scope('registree', 'recruiter', 'student')
@@ -71,13 +65,22 @@ def update(id, body):
     else:
         event = _update_event_details(body, result)
         query_details.update_one({'_id': ObjectId(id)}, {'$set': {'event': event}}, upsert=False)
-        return get_query(id)
+        return _get_query(id)
 
 @requires_auth
 @requires_scope('registree', 'student')
 def get_queries_by_student(student_address):
     results = query_details.find({'query.results.result.student_address': student_address})
     return _build_student_result(student_address, results)
+
+def _get_query(id):
+    result = query_details.find_one({'_id': ObjectId(id)})
+    if result:
+        result['_id'] = str(result['_id'])
+        metrics_result = _compute_ratios([result])[0]
+        return metrics_result
+    else:
+        return {'ERROR': 'No matching data found.'}, 409
 
 def _query(details, token):
     query_results = []
