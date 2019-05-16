@@ -119,7 +119,7 @@ paths:
               $ref: '#/components/schemas/UpdateStatus'
         description: student status update
         required: true
-  /post/update/{id}:
+  /query/update/{id}:
     post:
       tags:
         - query
