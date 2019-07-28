@@ -10,7 +10,7 @@ from .authentication import (get_token_auth_header, requires_auth,
                              requires_scope)
 from .helpers import check_id
 
-BIGCHAINDB_URL = env.get('BIGCHAINDB_URL', 'http://example.com')
+STUDENT_DB_URL = env.get('STUDENT_DB_URL', 'http://example.com')
 
 CLIENT = MongoClient('mongodb://mongodb:27017/')
 DB = CLIENT.database
@@ -92,9 +92,9 @@ def _query(details, token):
         }
         try:
             if item.get('course_id'):
-                query_result['result'] = _query_bigchaindb('course', item.get('course_id'), item, token)
+                query_result['result'] = _query_student_db('course', item.get('course_id'), item, token)
             elif item.get('degree_id'):
-                query_result['result'] = _query_bigchaindb('degree', item.get('degree_id'), item, token)
+                query_result['result'] = _query_student_db('degree', item.get('degree_id'), item, token)
             else:
                 query_result['result'] = {}
         except ValueError as exp:
@@ -102,18 +102,18 @@ def _query(details, token):
         query_results.append(query_result)
     return query_results
 
-def _query_bigchaindb(_type, _id, item, token):
+def _query_student_db(_type, _id, item, token):
     headers = {'Authorization': 'Bearer ' + token}
     if item.get('absolute'):
         payload = {_type + '_id': _id, 'x': item.get('absolute')}
-        response = requests.get(BIGCHAINDB_URL + '/query/' + _type + '/top_x', params=payload, headers=headers)
+        response = requests.get(STUDENT_DB_URL + '/query/' + _type + '/top_x', params=payload, headers=headers)
         if response.status_code == 200:
             return json.loads(response.text)
         else:
             raise ValueError('Query not possible')
     elif item.get('percentage'):
         payload = {_type + '_id': _id, 'x': item.get('percentage')}
-        response = requests.get(BIGCHAINDB_URL + '/query/' + _type + '/top_x_percent', params=payload, headers=headers)
+        response = requests.get(STUDENT_DB_URL + '/query/' + _type + '/top_x_percent', params=payload, headers=headers)
         if response.status_code == 200:
             return json.loads(response.text)
         else:

@@ -12,7 +12,7 @@ The API is built using [Connexion](https://github.com/zalando/connexion), the fi
     ```
     AUTH0_DOMAIN: "your.domain.auth0.com"
     API_IDENTIFIER: "https://your.domain/yourapi"
-    BIGCHAINDB_URL: "http://yourhost:8002/v0.1"
+    STUDENT_DB_URL: "http://yourhost:8002/v0.1"
     ```
 
 ## Build
