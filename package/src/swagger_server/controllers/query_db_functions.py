@@ -12,9 +12,9 @@ from .helpers import check_id
 
 BIGCHAINDB_URL = env.get('BIGCHAINDB_URL', 'http://example.com')
 
-client = MongoClient('mongodb://mongodb:27017/')
-db = client.query_database
-query_details = db.query_details
+CLIENT = MongoClient('mongodb://mongodb:27017/')
+DB = CLIENT.database
+query_details = DB.query_db
 
 @requires_auth
 @requires_scope('registree', 'recruiter')
