@@ -10,14 +10,14 @@ from .authentication import (get_token_auth_header, requires_auth,
                              requires_scope)
 from .helpers import check_id
 
-BIGCHAINDB_URL = env.get('BIGCHAINDB_URL', 'http://example.com')
+STUDENT_DB_URL = env.get('STUDENT_DB_URL', 'http://example.com')
 
-client = MongoClient('mongodb://mongodb:27017/')
-db = client.query_database
-query_details = db.query_details
+CLIENT = MongoClient('mongodb://mongodb:27017/')
+DB = CLIENT.database
+query_details = DB.query_db
 
 @requires_auth
-@requires_scope('registree', 'recruiter')
+@requires_scope('recruiter')
 def post_query(body):
     token = get_token_auth_header()
     query = body.get('query')
@@ -28,19 +28,13 @@ def post_query(body):
     return str(query_details.insert_one(body).inserted_id)
 
 @requires_auth
-@requires_scope('registree', 'recruiter')
+@requires_scope('recruiter')
 @check_id
 def get_query(id):
-    result = query_details.find_one({'_id': ObjectId(id)})
-    if result:
-        result['_id'] = str(result['_id'])
-        metrics_result = _compute_ratios([result])[0]
-        return metrics_result
-    else:
-        return {'ERROR': 'No matching data found.'}, 409
+    return _get_query(id)
 
 @requires_auth
-@requires_scope('registree', 'recruiter')
+@requires_scope('recruiter', 'registree')
 def get_queries_by_customer(customer_id):
     result = query_details.find({'customer_id': customer_id})
     if result:
@@ -49,9 +43,9 @@ def get_queries_by_customer(customer_id):
     else:
         return {'ERROR': 'No matching data found.'}, 409
 
-@requires_auth
-@requires_scope('registree', 'recruiter')
 @check_id
+@requires_auth
+@requires_scope('recruiter', 'student')
 def update_status(id, body):
     result = query_details.find_one({'_id': ObjectId(id)})
     if not result:
@@ -59,10 +53,10 @@ def update_status(id, body):
     else:
         student_record = _set_status(body, result)
         query_details.update_one({'_id': ObjectId(id)}, {'$set': {'query.responses.' + body.get('student_address'): student_record}}, upsert=False)
-        return get_query(id)
+        return _get_query(id)
 
 @requires_auth
-@requires_scope('registree', 'recruiter', 'student')
+@requires_scope('recruiter', 'student')
 @check_id
 def update(id, body):
     result = query_details.find_one({'_id': ObjectId(id)})
@@ -71,7 +65,22 @@ def update(id, body):
     else:
         event = _update_event_details(body, result)
         query_details.update_one({'_id': ObjectId(id)}, {'$set': {'event': event}}, upsert=False)
-        return get_query(id)
+        return _get_query(id)
+
+@requires_auth
+@requires_scope('student')
+def get_queries_by_student(student_address):
+    results = query_details.find({'query.results.result.student_address': student_address})
+    return _build_student_result(student_address, results)
+
+def _get_query(id):
+    result = query_details.find_one({'_id': ObjectId(id)})
+    if result:
+        result['_id'] = str(result['_id'])
+        metrics_result = _compute_ratios([result])[0]
+        return metrics_result
+    else:
+        return {'ERROR': 'No matching data found.'}, 409
 
 def _query(details, token):
     query_results = []
@@ -83,9 +92,9 @@ def _query(details, token):
         }
         try:
             if item.get('course_id'):
-                query_result['result'] = _query_bigchaindb('course', item.get('course_id'), item, token)
+                query_result['result'] = _query_student_db('course', item.get('course_id'), item, token)
             elif item.get('degree_id'):
-                query_result['result'] = _query_bigchaindb('degree', item.get('degree_id'), item, token)
+                query_result['result'] = _query_student_db('degree', item.get('degree_id'), item, token)
             else:
                 query_result['result'] = {}
         except ValueError as exp:
@@ -93,18 +102,18 @@ def _query(details, token):
         query_results.append(query_result)
     return query_results
 
-def _query_bigchaindb(_type, _id, item, token):
+def _query_student_db(_type, _id, item, token):
     headers = {'Authorization': 'Bearer ' + token}
     if item.get('absolute'):
         payload = {_type + '_id': _id, 'x': item.get('absolute')}
-        response = requests.get(BIGCHAINDB_URL + '/query/' + _type + '/top_x', params=payload, headers=headers)
+        response = requests.get(STUDENT_DB_URL + '/query/' + _type + '/top_x', params=payload, headers=headers)
         if response.status_code == 200:
             return json.loads(response.text)
         else:
             raise ValueError('Query not possible')
     elif item.get('percentage'):
         payload = {_type + '_id': _id, 'x': item.get('percentage')}
-        response = requests.get(BIGCHAINDB_URL + '/query/' + _type + '/top_x_percent', params=payload, headers=headers)
+        response = requests.get(STUDENT_DB_URL + '/query/' + _type + '/top_x_percent', params=payload, headers=headers)
         if response.status_code == 200:
             return json.loads(response.text)
         else:
@@ -138,12 +147,12 @@ def _compute_ratios(results):
             if value['accepted']:
                 accepted += 1
             if value['attended']:
-                accepted += 1
+                attended += 1
         result['query']['metrics'] = {
-            'viewed': viewed / len(responses), 
-            'responded': responded / len(responses), 
-            'accepted': accepted / len(responses), 
-            'attended': attended / len(responses)
+            'viewed': viewed, 
+            'responded': responded, 
+            'accepted': accepted, 
+            'attended': attended
             }
         updated_results.append(result)
     return updated_results
@@ -164,6 +173,20 @@ def _update_event_details(body, result):
     for key, value in body.items():
         event[key] = value
     return event
+
+def _build_student_result(student_address, results):
+    student_results = []
+    for result in results:
+        student_result = {
+            '_id': str(result.get('_id')),
+            'customer_id': result.get('customer_id'),
+            'event': result.get('event'),
+            'response': result.get('query').get('responses').get(student_address),
+            'timestamp': result.get('query').get('timestamp'),
+            'qr': json.dumps({'query_id': str(result.get('_id')), 'student_address': student_address})
+        }
+        student_results.append(student_result)
+    return student_results
 
 def _stringify_object_id(result):
     stringified_result = []

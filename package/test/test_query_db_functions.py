@@ -7,7 +7,8 @@ import pytest
 import requests
 from freezegun import freeze_time
 
-from src.swagger_server.controllers.query_db_functions import (_compute_ratios,
+from src.swagger_server.controllers.query_db_functions import (_build_student_result,
+                                                               _compute_ratios,
                                                                _notify_students,
                                                                _query,
                                                                _set_status,
@@ -156,6 +157,27 @@ def test_update_event_details():
     expected_output['type'] = 'recruiting'
     expected_output['message'] = 'Hi there!'
     assert(_update_event_details(body, result) == expected_output)
+
+def test_build_student_result():
+    query_result = _get_query()
+    expected_output = [{'_id': '5c89d28c42b09700010413f2',
+        'customer_id': '123456789',
+        'event': {'address': 'string',
+        'end_date': 'string',
+        'flyer': 'string',
+        'info': 'string',
+        'message': 'string',
+        'name': 'string',
+        'start_date': 'string',
+        'type': 'string'},
+        'response': {'sent': '2019-03-14 04:03',
+        'viewed': '',
+        'responded': '',
+        'accepted': False,
+        'attended': False},
+        'timestamp': '2019-03-14 04:03',
+        'qr': '{"query_id": "5c89d28c42b09700010413f2", "student_address": "0xDFc14F1E02A00244593dB12f53910C231eEFECAd"}'}]
+    assert(_build_student_result('0xDFc14F1E02A00244593dB12f53910C231eEFECAd', query_result) == expected_output)
     
 
 def _get_query_result():
@@ -211,3 +233,53 @@ def _get_event_details():
             "message": "Hello World!"
         }
     }
+
+def _get_query():
+    return [{'_id': '5c89d28c42b09700010413f2',
+        'customer_id': '123456789',
+        'event': {'address': 'string',
+        'end_date': 'string',
+        'flyer': 'string',
+        'info': 'string',
+        'message': 'string',
+        'name': 'string',
+        'start_date': 'string',
+        'type': 'string'},
+        'query': {'details': [{'absolute': 3,
+            'degree_id': '5116f8681bb7d9d768cdf8c2a2d14de99c7401e90524596a1a85e1f7a11d742b',
+            'degree_name': 'string',
+            'faculty_id': '2be196098241d7cf29b422517a1f55ba7ef55c5003ff0bcb901463842e2ee7c9',
+            'faculty_name': 'string',
+            'university_id': '6835a0287d1c818cbb8811a8c4acf81edd85726c5faa8a0047f7ea3c29e97c36',
+            'university_name': 'string'}],
+        'results': [{'university_id': '6835a0287d1c818cbb8811a8c4acf81edd85726c5faa8a0047f7ea3c29e97c36',
+            'degree_id': '5116f8681bb7d9d768cdf8c2a2d14de99c7401e90524596a1a85e1f7a11d742b',
+            'course_id': None,
+            'result': [{'avg': 65.13333333333334,
+            'complete': False,
+            'student_address': '0x38b9118Fb0d7db10321eBffC694b946eF1CB37c5',
+            'timestamp': '2019-02-26 10:26'},
+            {'avg': 64.91766666666666,
+            'complete': False,
+            'student_address': '0x379510a728aA9269607f7037FFcbDe4c6d539f47',
+            'timestamp': '2019-02-26 10:26'},
+            {'avg': 64.36633333333334,
+            'complete': False,
+            'student_address': '0xDFc14F1E02A00244593dB12f53910C231eEFECAd',
+            'timestamp': '2019-02-26 10:26'}]}],
+        'responses': {'0x38b9118Fb0d7db10321eBffC694b946eF1CB37c5': {'sent': '2019-03-14 04:03',
+            'viewed': '',
+            'responded': '',
+            'accepted': False,
+            'attended': False},
+            '0x379510a728aA9269607f7037FFcbDe4c6d539f47': {'sent': '2019-03-14 04:03',
+            'viewed': '',
+            'responded': '',
+            'accepted': False,
+            'attended': False},
+            '0xDFc14F1E02A00244593dB12f53910C231eEFECAd': {'sent': '2019-03-14 04:03',
+            'viewed': '',
+            'responded': '',
+            'accepted': False,
+            'attended': False}},
+        'timestamp': '2019-03-14 04:03'}}]

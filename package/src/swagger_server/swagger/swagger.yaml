@@ -70,6 +70,27 @@ paths:
           description: Authentication error
         '409':
           description: Conflict
+  /query/get_by_student:
+    get:
+      tags:
+        - query
+      summary: retrieve queries by student
+      description: ''
+      operationId: swagger_server.controllers.query_db_functions.get_queries_by_student
+      parameters:
+        - in: query
+          name: student_address
+          description: student address on blockchain
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Authentication error
+        '409':
+          description: Conflict
   /query/update_status/{id}:
     post:
       tags:
@@ -98,7 +119,7 @@ paths:
               $ref: '#/components/schemas/UpdateStatus'
         description: student status update
         required: true
-  /post/update/{id}:
+  /query/update/{id}:
     post:
       tags:
         - query

@@ -12,13 +12,13 @@ services:
       AUTH0_DOMAIN: "registree.eu.auth0.com"
       API_IDENTIFIER: "https://registree.rocks/apis"
       ALGORITHMS: "['RS256']"
-      BIGCHAINDB_URL: "http://bigchaindb_api:8000/v0.1"
+      STUDENT_DB_URL: "http://student-db-api:8000/v0.1"
     depends_on:
       - mongodb
     networks:
       - backbone
       - apiaggregator_interconnector
-      - bigchaindbapi_backbone
+      - studentnftapi_backbone
 
   mongodb:
     image: mongo:3.6
@@ -31,7 +31,7 @@ services:
 networks: 
   backbone:
     driver: bridge
-  bigchaindbapi_backbone:
+  studentnftapi_backbone:
     external: true
   apiaggregator_interconnector:
     external: true

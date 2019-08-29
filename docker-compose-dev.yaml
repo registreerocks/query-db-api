@@ -12,7 +12,7 @@ services:
       AUTH0_DOMAIN: "registree.eu.auth0.com"
       API_IDENTIFIER: "https://registree.rocks/apis"
       ALGORITHMS: "['RS256']"
-      BIGCHAINDB_URL: "http://178.62.244.76:8002/v0.1"
+      STUDENT_DB_URL: "http://student-db-api:8000/v0.1"
     depends_on:
       - mongodb
     networks:
