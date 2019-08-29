@@ -17,7 +17,7 @@ DB = CLIENT.database
 query_details = DB.query_db
 
 @requires_auth
-@requires_scope('registree', 'recruiter')
+@requires_scope('recruiter')
 def post_query(body):
     token = get_token_auth_header()
     query = body.get('query')
@@ -28,13 +28,13 @@ def post_query(body):
     return str(query_details.insert_one(body).inserted_id)
 
 @requires_auth
-@requires_scope('registree', 'recruiter')
+@requires_scope('recruiter')
 @check_id
 def get_query(id):
     return _get_query(id)
 
 @requires_auth
-@requires_scope('registree', 'recruiter')
+@requires_scope('recruiter', 'registree')
 def get_queries_by_customer(customer_id):
     result = query_details.find({'customer_id': customer_id})
     if result:
@@ -45,7 +45,7 @@ def get_queries_by_customer(customer_id):
 
 @check_id
 @requires_auth
-@requires_scope('registree', 'recruiter', 'student')
+@requires_scope('recruiter', 'student')
 def update_status(id, body):
     result = query_details.find_one({'_id': ObjectId(id)})
     if not result:
@@ -56,7 +56,7 @@ def update_status(id, body):
         return _get_query(id)
 
 @requires_auth
-@requires_scope('registree', 'recruiter', 'student')
+@requires_scope('recruiter', 'student')
 @check_id
 def update(id, body):
     result = query_details.find_one({'_id': ObjectId(id)})
@@ -68,7 +68,7 @@ def update(id, body):
         return _get_query(id)
 
 @requires_auth
-@requires_scope('registree', 'student')
+@requires_scope('student')
 def get_queries_by_student(student_address):
     results = query_details.find({'query.results.result.student_address': student_address})
     return _build_student_result(student_address, results)
