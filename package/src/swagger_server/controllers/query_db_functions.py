@@ -124,13 +124,14 @@ def _build_query(details):
     return query_results, query_list
 
 def _query_student_db(query_list, token):
-    headers = {'Authorization': 'Bearer ' + token}
+    headers = {'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'}
     body = {'query_list': query_list}
-    response = requests.post(STUDENT_DB_URL + '/query/bulk', data=body, headers=headers)
+    response = requests.post(STUDENT_DB_URL + '/query/bulk', data=json.dumps(body), headers=headers)
     if response.status_code == 200:
         return json.loads(response.text)
     else:
-        raise ValueError('Query not possible')
+        
+        raise ValueError('Query not possible, status code: '+ response.status_code)
 
 def _notify_students(query_results):
     notifications = {}
