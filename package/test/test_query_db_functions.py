@@ -4,7 +4,6 @@ import re
 
 import httpretty
 import pytest
-import requests
 from freezegun import freeze_time
 
 from src.swagger_server.controllers.query_db_functions import (_build_student_result,
@@ -17,22 +16,24 @@ from src.swagger_server.controllers.query_db_functions import (_build_student_re
 
 @httpretty.activate
 def test_query():
-    response_data = [{
-        "avg": 75.42233333333334,
-        "complete": False,
-        "student_address": "0x857979Af25b959cDF1369df951a45DEb55f2904d",
-        "timestamp": "2019-02-12 05:05"
-    },
-    {
-        "avg": 73.605,
-        "complete": False,
-        "student_address": "0xDBEd414a980d757234Bfb2684999afB7aE799240",
-        "timestamp": "2019-02-12 05:05"
-    }]
+    response_data = {
+        0: [{
+            "avg": 75.42233333333334,
+            "complete": False,
+            "student_address": "0x857979Af25b959cDF1369df951a45DEb55f2904d",
+            "timestamp": "2019-02-12 05:05"
+        },
+        {
+            "avg": 73.605,
+            "complete": False,
+            "student_address": "0xDBEd414a980d757234Bfb2684999afB7aE799240",
+            "timestamp": "2019-02-12 05:05"
+        }]
+    }
     json_data = json.dumps(response_data)
 
     httpretty.register_uri(
-        httpretty.GET,
+        httpretty.POST,
         re.compile("http://.*"),
         content_type='application/json',
         body=json_data
@@ -138,9 +139,9 @@ def test_set_status_attended_true():
 def test_compute_ratio():
     event = _get_event()
     event['query']['metrics'] = {
-        'viewed': 0.5, 
-        'responded': 0.5, 
-        'accepted': 0.5,
+        'viewed': 1, 
+        'responded': 1, 
+        'accepted': 1,
         'attended': 0
     }
     expected_output = [event]
@@ -185,6 +186,7 @@ def _get_query_result():
         "university_id": "3f98f095ef1a7b782d9c897d8d004690d598ebe4c301f14256366beeaf083365",
         "degree_id": "7c9a1789f207659f2a28ee16737946d6b4189cb507ddd0fedc92978acaba4dfa",
         "course_id": None,
+        "faculty_id": None,
         "result": [{
             "avg": 75.42233333333334,
             "complete": False,

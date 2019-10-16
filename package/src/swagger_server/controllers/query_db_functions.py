@@ -83,43 +83,55 @@ def _get_query(id):
         return {'ERROR': 'No matching data found.'}, 409
 
 def _query(details, token):
-    query_results = []
-    for item in details:
-        query_result = {
-            'university_id': item.get('university_id'),
-            'degree_id': item.get('degree_id'),
-            'course_id': item.get('course_id')
-        }
-        try:
-            if item.get('course_id'):
-                query_result['result'] = _query_student_db('course', item.get('course_id'), item, token)
-            elif item.get('degree_id'):
-                query_result['result'] = _query_student_db('degree', item.get('degree_id'), item, token)
-            else:
-                query_result['result'] = {}
-        except ValueError as exp:
-            return {"ERROR": exp}
-        query_results.append(query_result)
+    query_results, query_list = _build_query(details)
+    query_response = _query_student_db(query_list, token)
+    print(query_response)
+    for i, item in enumerate(query_results):
+        item['result'] = query_response.get(str(i))
     return query_results
 
-def _query_student_db(_type, _id, item, token):
-    headers = {'Authorization': 'Bearer ' + token}
-    if item.get('absolute'):
-        payload = {_type + '_id': _id, 'x': item.get('absolute')}
-        response = requests.get(STUDENT_DB_URL + '/query/' + _type + '/top_x', params=payload, headers=headers)
-        if response.status_code == 200:
-            return json.loads(response.text)
-        else:
-            raise ValueError('Query not possible')
-    elif item.get('percentage'):
-        payload = {_type + '_id': _id, 'x': item.get('percentage')}
-        response = requests.get(STUDENT_DB_URL + '/query/' + _type + '/top_x_percent', params=payload, headers=headers)
-        if response.status_code == 200:
-            return json.loads(response.text)
-        else:
-            raise ValueError('Query not possible')
+def _build_query(details):
+    query_results = []
+    query_list = []
+    for item in details:
+        query_results.append({
+            'university_id': item.get('university_id'),
+            'faculty_id': item.get('faculty_id'),
+            'degree_id': item.get('degree_id'),
+            'course_id': item.get('course_id')
+        })
+        if item.get('course_id'):
+            query_list.append({
+                'type': 'course',
+                'type_id': item.get('course_id'),
+                'x': item.get('absolute', 0) | item.get('percentage', 0),
+                'absolute': True if item.get('absolute', 0) > item.get('percentage', 0) else False
+            })
+        elif item.get('degree_id'):
+            query_list.append({
+                'type': 'degree',
+                'type_id': item.get('degree_id'),
+                'x': item.get('absolute', 0) | item.get('percentage', 0),
+                'absolute': True if item.get('absolute', 0) > item.get('percentage', 0) else False
+            })
+        elif item.get('faculty_id'):
+            query_list.append({
+                'type': 'faculty',
+                'type_id': item.get('faculty_id'),
+                'x': item.get('absolute', 0) | item.get('percentage', 0),
+                'absolute': True if item.get('absolute', 0) > item.get('percentage', 0) else False
+            })
+    return query_results, query_list
+
+def _query_student_db(query_list, token):
+    headers = {'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'}
+    body = {'query_list': query_list}
+    response = requests.post(STUDENT_DB_URL + '/query/bulk', data=json.dumps(body), headers=headers)
+    if response.status_code == 200:
+        return json.loads(response.text)
     else:
-        raise ValueError('No filter given.')
+        
+        raise ValueError('Query not possible, status code: '+ response.status_code)
 
 def _notify_students(query_results):
     notifications = {}
