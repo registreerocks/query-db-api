@@ -53,7 +53,7 @@ def update_status(id, body):
     else:
         student_record = _set_status(body, result)
         query_details.update_one({'_id': ObjectId(id)}, {'$set': {'query.responses.' + body.get('student_address'): student_record}}, upsert=False)
-        return _get_query(id)
+        return id
 
 @requires_auth
 @requires_scope('recruiter', 'student')
