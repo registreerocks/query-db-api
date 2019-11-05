@@ -138,7 +138,7 @@ def test_set_status_attended_true():
             "last_name": "Doe"
         }
     }
-    assert(_add_infos(body, result) == json.dumps(expected_output))
+    assert(_add_infos(body, result) == expected_output)
 
 def test_compute_ratio():
     event = _get_event()

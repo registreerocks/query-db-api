@@ -198,7 +198,7 @@ def _add_infos(body, result):
         'first_name': body.get('first_name'),
         'last_name': body.get('last_name')
     }
-    return json.dumps(student_record)
+    return student_record
 
 def _update_event_details(body, result):
     event = result.get('event')
