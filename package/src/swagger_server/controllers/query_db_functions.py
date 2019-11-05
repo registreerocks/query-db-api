@@ -67,6 +67,18 @@ def update(id, body):
         query_details.update_one({'_id': ObjectId(id)}, {'$set': {'event': event}}, upsert=False)
         return _get_query(id)
 
+@check_id
+@requires_auth
+@requires_scope('recruiter', 'student')
+def add_student_attendance(id, body):
+    result = query_details.find_one({'_id': ObjectId(id)})
+    if not result:
+        return {'ERROR': 'No matching data found.'}, 409
+    else:
+        student_record = _add_infos(body, result)
+        query_details.update_one({'_id': ObjectId(id)}, {'$set': {'query.responses.' + body.get('student_address'): student_record}}, upsert=False)
+        return id
+
 @requires_auth
 @requires_scope('student')
 def get_queries_by_student(student_address):
@@ -176,9 +188,17 @@ def _set_status(body, result):
     elif 'accepted' in body:
         student_record['responded'] = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M')
         student_record['accepted'] = body.get('accepted')
-    elif 'attended' in body:
-        student_record['attended'] = body.get('attended')
     return student_record
+
+def _add_infos(body, result):
+    student_record = result.get('query').get('responses').get(body.get('student_address'))
+    student_record['attended'] = True
+    student_record['student_info'] = {
+        'student_id': body.get('student_id'),
+        'first_name': body.get('first_name'),
+        'last_name': body.get('last_name')
+    }
+    return json.dumps(student_record)
 
 def _update_event_details(body, result):
     event = result.get('event')
