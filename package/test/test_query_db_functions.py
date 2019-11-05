@@ -6,12 +6,9 @@ import httpretty
 import pytest
 from freezegun import freeze_time
 
-from src.swagger_server.controllers.query_db_functions import (_build_student_result,
-                                                               _compute_ratios,
-                                                               _notify_students,
-                                                               _query,
-                                                               _set_status,
-                                                               _update_event_details)
+from src.swagger_server.controllers.query_db_functions import (
+    _add_infos, _build_student_result, _compute_ratios, _notify_students,
+    _query, _set_status, _update_event_details)
 
 
 @httpretty.activate
@@ -124,7 +121,9 @@ def test_set_status_attended_true():
     body = {
         "id": "12345",
         "student_address": "0xDBEd414a980d757234Bfb2684999afB7aE799240",
-        "attended": True
+        "student_id": "DOEJOH001",
+        "first_name": "John",
+        "last_name": "Doe"
     }
     result = _get_event()
     expected_output = {
@@ -132,9 +131,14 @@ def test_set_status_attended_true():
         "viewed": "2012-01-01 15:00",
         "responded": "2012-01-01 15:01",
         "accepted": True,
-        "attended": True
+        "attended": True,
+        "student_info": {
+            "student_id": "DOEJOH001",
+            "first_name": "John",
+            "last_name": "Doe"
+        }
     }
-    assert(_set_status(body, result) == expected_output)
+    assert(_add_infos(body, result) == expected_output)
 
 def test_compute_ratio():
     event = _get_event()
