@@ -98,24 +98,18 @@ def _get_query(id):
         return {'ERROR': 'No matching data found.'}, 409
 
 def _query(details, token):
-    query_results, query_list = _build_query(details)
+    query_list = _build_query(details)
+    query_results = []
     try:
         query_response = _query_student_db(query_list, token)
-        for i, item in enumerate(query_results):
-            item['result'] = query_response.get(str(i))
+        for i in range(len(query_list)):
+            query_results += query_response.get(str(i))
         return query_results
     except ValueError: raise
 
 def _build_query(details):
-    query_results = []
     query_list = []
     for item in details:
-        query_results.append({
-            'university_id': item.get('university_id'),
-            'faculty_id': item.get('faculty_id'),
-            'degree_id': item.get('degree_id'),
-            'course_id': item.get('course_id')
-        })
         if item.get('course_id'):
             query_list.append({
                 'type': 'course',
@@ -137,7 +131,7 @@ def _build_query(details):
                 'x': item.get('absolute', 0) | item.get('percentage', 0),
                 'absolute': True if item.get('absolute', 0) > item.get('percentage', 0) else False
             })
-    return query_results, query_list
+    return query_list
 
 def _query_student_db(query_list, token):
     headers = {'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'}
@@ -151,14 +145,13 @@ def _query_student_db(query_list, token):
 def _notify_students(query_results):
     notifications = {}
     for result in query_results:
-        for student in result['result']:
-            notifications[student['student_address']] = {
-                'sent': datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M'),
-                'viewed': '',
-                'responded': '',
-                'accepted': False,
-                'attended': False
-            }
+        notifications[result['student_address']] = {
+            'sent': datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M'),
+            'viewed': '',
+            'responded': '',
+            'accepted': False,
+            'attended': False
+        }
     return notifications
 
 def _compute_ratios(results):

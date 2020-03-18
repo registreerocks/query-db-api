@@ -25,6 +25,18 @@ def test_query():
             "complete": False,
             "student_address": "0xDBEd414a980d757234Bfb2684999afB7aE799240",
             "timestamp": "2019-02-12 05:05"
+        }],
+        1: [{
+            "avg": 81,
+            "complete": False,
+            "student_address": "0x857979Af25b959cDF1369df951a45DEb55f2904e",
+            "timestamp": "2019-02-12 05:05"
+        },
+        {
+            "avg": 79,
+            "complete": False,
+            "student_address": "0xDBEd414a980d757234Bfb2684999afB7aE799241",
+            "timestamp": "2019-02-12 05:05"
         }]
     }
     json_data = json.dumps(response_data)
@@ -39,6 +51,11 @@ def test_query():
     details = [{
         "university_id": "3f98f095ef1a7b782d9c897d8d004690d598ebe4c301f14256366beeaf083365",
         "degree_id": "7c9a1789f207659f2a28ee16737946d6b4189cb507ddd0fedc92978acaba4dfa",
+        "absolute": 2
+    },
+    {
+        "university_id": "3f98f095ef1a7b782d9c897d8d004690d598ebe4c301f14256366beeaf083365",
+        "degree_id": "7c9a1789f207659f2a28ee16737946d6b4189cb507ddd0fedc92978acaba4dfb",
         "absolute": 2
     }]
 
@@ -76,6 +93,20 @@ def test_notify_students():
             "attended": False
         },
         "0xDBEd414a980d757234Bfb2684999afB7aE799240": {
+            "sent": "2012-01-01 14:00",
+            "viewed": "",
+            "responded": "",
+            "accepted": False,
+            "attended": False
+        },
+        "0x857979Af25b959cDF1369df951a45DEb55f2904e" : {
+            "sent": "2012-01-01 14:00",
+            "viewed": "",
+            "responded": "",
+            "accepted": False,
+            "attended": False
+        },
+        "0xDBEd414a980d757234Bfb2684999afB7aE799241": {
             "sent": "2012-01-01 14:00",
             "viewed": "",
             "responded": "",
@@ -206,11 +237,6 @@ def test_build_student_result():
 
 def _get_query_result():
     return [{
-        "university_id": "3f98f095ef1a7b782d9c897d8d004690d598ebe4c301f14256366beeaf083365",
-        "degree_id": "7c9a1789f207659f2a28ee16737946d6b4189cb507ddd0fedc92978acaba4dfa",
-        "course_id": None,
-        "faculty_id": None,
-        "result": [{
             "avg": 75.42233333333334,
             "complete": False,
             "student_address": "0x857979Af25b959cDF1369df951a45DEb55f2904d",
@@ -221,8 +247,19 @@ def _get_query_result():
             "complete": False,
             "student_address": "0xDBEd414a980d757234Bfb2684999afB7aE799240",
             "timestamp": "2019-02-12 05:05"
+        },
+        {
+            "avg": 81,
+            "complete": False,
+            "student_address": "0x857979Af25b959cDF1369df951a45DEb55f2904e",
+            "timestamp": "2019-02-12 05:05"
+        },
+        {
+            "avg": 79,
+            "complete": False,
+            "student_address": "0xDBEd414a980d757234Bfb2684999afB7aE799241",
+            "timestamp": "2019-02-12 05:05"
         }]
-    }]
 
 def _get_event():
     return {
