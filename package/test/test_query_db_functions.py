@@ -45,6 +45,25 @@ def test_query():
     expected_output = _get_query_result()
     assert(_query(details, '12345') == expected_output)
 
+@httpretty.activate
+def test_query_fail():
+
+    httpretty.register_uri(
+        httpretty.POST,
+        re.compile("http://.*"),
+        content_type='application/json',
+        status=408
+    )
+
+    details = [{
+        "university_id": "3f98f095ef1a7b782d9c897d8d004690d598ebe4c301f14256366beeaf083365",
+        "degree_id": "7c9a1789f207659f2a28ee16737946d6b4189cb507ddd0fedc92978acaba4dfa",
+        "absolute": 2
+    }]
+
+    with pytest.raises(ValueError, match='Query not possible, status code: 408'):
+        _query(details, '12345')
+
 @freeze_time("2012-01-01 14:00")
 def test_notify_students():
     result = _get_query_result()

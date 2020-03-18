@@ -21,11 +21,14 @@ query_details = DB.query_db
 def post_query(body):
     token = get_token_auth_header()
     query = body.get('query')
-    query['results'] = _query(query.get('details'), token)
-    query['responses'] = _notify_students(query['results'])
-    query['timestamp'] = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M')
-    body['query'] = query
-    return str(query_details.insert_one(body).inserted_id)
+    try:
+        query['results'] = _query(query.get('details'), token)
+        query['responses'] = _notify_students(query['results'])
+        query['timestamp'] = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M')
+        body['query'] = query
+        return str(query_details.insert_one(body).inserted_id)
+    except ValueError as e:
+        return {'ERROR': str(e)}, 500
 
 @requires_auth
 @requires_scope('recruiter')
@@ -96,11 +99,12 @@ def _get_query(id):
 
 def _query(details, token):
     query_results, query_list = _build_query(details)
-    query_response = _query_student_db(query_list, token)
-    print(query_response)
-    for i, item in enumerate(query_results):
-        item['result'] = query_response.get(str(i))
-    return query_results
+    try:
+        query_response = _query_student_db(query_list, token)
+        for i, item in enumerate(query_results):
+            item['result'] = query_response.get(str(i))
+        return query_results
+    except ValueError: raise
 
 def _build_query(details):
     query_results = []
@@ -142,8 +146,7 @@ def _query_student_db(query_list, token):
     if response.status_code == 200:
         return json.loads(response.text)
     else:
-        
-        raise ValueError('Query not possible, status code: '+ response.status_code)
+        raise ValueError('Query not possible, status code: '+ str(response.status_code))
 
 def _notify_students(query_results):
     notifications = {}
