@@ -28,6 +28,34 @@ paths:
               $ref: '#/components/schemas/Query'
         description: query object
         required: true
+  /query/expand/{id}:
+    post:
+      tags:
+        - query
+      summary: expand a query
+      description: ''
+      operationId: swagger_server.controllers.query_db_functions.expand_query
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Authentication error
+        '500':
+          description: Internal error
+      parameters:
+        - name: id
+          in: path
+          description: ID of query to be expanded
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueryExpand'
+        description: query object
+        required: true
   /query/get:
     get:
       tags:
@@ -235,6 +263,33 @@ components:
                     type: integer
       xml:
         name: Query
+    QueryExpand:
+      type: array
+      items:
+        type: object
+        properties:
+          university_id: 
+            type: string
+          university_name: 
+            type: string
+          faculty_id: 
+            type: string
+          faculty_name: 
+            type: string
+          degree_id:
+            type: string
+          degree_name:
+            type: string
+          course_id:
+            type: string
+          course_name:
+            type: string
+          absolute:
+            type: integer
+          percentage:
+            type: integer
+      xml:
+        name: QueryUpdate
     UpdateStatus:
       type: object
       properties:

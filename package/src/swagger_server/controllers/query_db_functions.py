@@ -70,6 +70,31 @@ def update(id, body):
         query_details.update_one({'_id': ObjectId(id)}, {'$set': {'event': event}}, upsert=False)
         return _get_query(id)
 
+@requires_auth
+@requires_scope('recruiter')
+@check_id
+def expand_query(id, body):
+    token = get_token_auth_header()
+    query = query_details.find_one({'_id': ObjectId(id)})
+    if not query:
+        return {'ERROR': 'No matching data found.'}, 409
+    else:
+        try:
+            expanded_result, new_result = _expand_query(body, query.results, token)
+            expanded_notifications = _expand_notify_students(query.responses, new_result)
+            query_details.update_one(
+                {'_id': ObjectId(id)}, 
+                {'$set': {
+                    'query.details': body,
+                    'query.results': expanded_result, 
+                    'query.responses': expanded_notifications, 
+                    'query.timestamp': datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M')
+                    }
+                }, upsert=False)
+            return _get_query(id)
+        except ValueError as e:
+            return {'ERROR': str(e)}, 500
+
 @check_id
 @requires_auth
 @requires_scope('recruiter', 'student')
@@ -85,7 +110,7 @@ def add_student_attendance(id, body):
 @requires_auth
 @requires_scope('student')
 def get_queries_by_student(student_address):
-    results = query_details.find({'query.results.result.student_address': student_address})
+    results = query_details.find({'query.results.student_address': student_address})
     return _build_student_result(student_address, results)
 
 def _get_query(id):
@@ -105,6 +130,15 @@ def _query(details, token):
         for i in range(len(query_list)):
             query_results += query_response.get(str(i))
         return query_results
+    except ValueError: raise
+
+def _expand_query(details, old_results, token):
+    try:
+        new_results = _query(details, token)
+        for item in new_results:
+            if item not in old_results:
+                old_results.append(item)
+        return old_results
     except ValueError: raise
 
 def _build_query(details):
@@ -152,6 +186,18 @@ def _notify_students(query_results):
             'accepted': False,
             'attended': False
         }
+    return notifications
+
+def _expand_notify_students(notifications, query_results):
+    for result in query_results:
+        if not notifications.get(result['student_address']):
+            notifications[result['student_address']] = {
+                'sent': datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M'),
+                'viewed': '',
+                'responded': '',
+                'accepted': False,
+                'attended': False
+            }
     return notifications
 
 def _compute_ratios(results):

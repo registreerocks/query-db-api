@@ -7,45 +7,19 @@ import pytest
 from freezegun import freeze_time
 
 from src.swagger_server.controllers.query_db_functions import (
-    _add_infos, _build_student_result, _compute_ratios, _notify_students,
-    _query, _set_status, _update_event_details)
+    _add_infos, _build_student_result, _compute_ratios,
+    _expand_notify_students, _expand_query, _notify_students, _query,
+    _set_status, _update_event_details)
 
 
 @httpretty.activate
 def test_query():
-    response_data = {
-        0: [{
-            "avg": 75.42233333333334,
-            "complete": False,
-            "student_address": "0x857979Af25b959cDF1369df951a45DEb55f2904d",
-            "timestamp": "2019-02-12 05:05"
-        },
-        {
-            "avg": 73.605,
-            "complete": False,
-            "student_address": "0xDBEd414a980d757234Bfb2684999afB7aE799240",
-            "timestamp": "2019-02-12 05:05"
-        }],
-        1: [{
-            "avg": 81,
-            "complete": False,
-            "student_address": "0x857979Af25b959cDF1369df951a45DEb55f2904e",
-            "timestamp": "2019-02-12 05:05"
-        },
-        {
-            "avg": 79,
-            "complete": False,
-            "student_address": "0xDBEd414a980d757234Bfb2684999afB7aE799241",
-            "timestamp": "2019-02-12 05:05"
-        }]
-    }
-    json_data = json.dumps(response_data)
 
     httpretty.register_uri(
         httpretty.POST,
         re.compile("http://.*"),
         content_type='application/json',
-        body=json_data
+        body=json.dumps(_get_short_response())
     )
 
     details = [{
@@ -233,7 +207,178 @@ def test_build_student_result():
         'timestamp': '2019-03-14 04:03',
         'qr': '{"query_id": "5c89d28c42b09700010413f2", "student_address": "0xDFc14F1E02A00244593dB12f53910C231eEFECAd"}'}]
     assert(_build_student_result('0xDFc14F1E02A00244593dB12f53910C231eEFECAd', query_result) == expected_output)
-    
+
+@httpretty.activate
+def test_expand_query():
+
+    httpretty.register_uri(
+        httpretty.POST,
+        re.compile("http://.*"),
+        content_type='application/json',
+        body=json.dumps(_get_long_response())
+    )
+
+    details = [{
+        "university_id": "3f98f095ef1a7b782d9c897d8d004690d598ebe4c301f14256366beeaf083365",
+        "degree_id": "7c9a1789f207659f2a28ee16737946d6b4189cb507ddd0fedc92978acaba4dfa",
+        "absolute": 3
+    },
+    {
+        "university_id": "3f98f095ef1a7b782d9c897d8d004690d598ebe4c301f14256366beeaf083365",
+        "degree_id": "7c9a1789f207659f2a28ee16737946d6b4189cb507ddd0fedc92978acaba4dfb",
+        "absolute": 3
+    }]
+
+    expected_output = _get_long_query_result()
+    assert(_expand_query(details, _get_query_result(), '12345', ) == expected_output)
+
+@freeze_time("2012-01-01 15:00")
+def test_expand_notify_students():
+    result = _get_long_query_result()
+    old_notifications = {
+        "0x857979Af25b959cDF1369df951a45DEb55f2904d" : {
+            "sent": "2012-01-01 14:00",
+            "viewed": "",
+            "responded": "",
+            "accepted": False,
+            "attended": False
+        },
+        "0xDBEd414a980d757234Bfb2684999afB7aE799240": {
+            "sent": "2012-01-01 14:00",
+            "viewed": "",
+            "responded": "",
+            "accepted": False,
+            "attended": False
+        },
+        "0x857979Af25b959cDF1369df951a45DEb55f2904e" : {
+            "sent": "2012-01-01 14:00",
+            "viewed": "",
+            "responded": "",
+            "accepted": False,
+            "attended": False
+        },
+        "0xDBEd414a980d757234Bfb2684999afB7aE799241": {
+            "sent": "2012-01-01 14:00",
+            "viewed": "",
+            "responded": "",
+            "accepted": False,
+            "attended": False
+        }
+    }
+
+    expected_output = {
+        "0x857979Af25b959cDF1369df951a45DEb55f2904d" : {
+            "sent": "2012-01-01 14:00",
+            "viewed": "",
+            "responded": "",
+            "accepted": False,
+            "attended": False
+        },
+        "0xDBEd414a980d757234Bfb2684999afB7aE799240": {
+            "sent": "2012-01-01 14:00",
+            "viewed": "",
+            "responded": "",
+            "accepted": False,
+            "attended": False
+        },
+        "0x857979Af25b959cDF1369df951a45DEb55f2904e" : {
+            "sent": "2012-01-01 14:00",
+            "viewed": "",
+            "responded": "",
+            "accepted": False,
+            "attended": False
+        },
+        "0xDBEd414a980d757234Bfb2684999afB7aE799241": {
+            "sent": "2012-01-01 14:00",
+            "viewed": "",
+            "responded": "",
+            "accepted": False,
+            "attended": False
+        },
+        "0xDBEd414a980d757234Bfb2684999afB7aE799480": {
+            "sent": "2012-01-01 15:00",
+            "viewed": "",
+            "responded": "",
+            "accepted": False,
+            "attended": False
+        },
+        "0xDBEd414a980d757234Bfb2684999afB7aE799481": {
+            "sent": "2012-01-01 15:00",
+            "viewed": "",
+            "responded": "",
+            "accepted": False,
+            "attended": False
+        }
+    }
+    assert(_expand_notify_students(old_notifications, result) == expected_output)
+
+def _get_short_response():
+    return {
+        0: [{
+            "avg": 75.42233333333334,
+            "complete": False,
+            "student_address": "0x857979Af25b959cDF1369df951a45DEb55f2904d",
+            "timestamp": "2019-02-12 05:05"
+        },
+        {
+            "avg": 73.605,
+            "complete": False,
+            "student_address": "0xDBEd414a980d757234Bfb2684999afB7aE799240",
+            "timestamp": "2019-02-12 05:05"
+        }],
+        1: [{
+            "avg": 81,
+            "complete": False,
+            "student_address": "0x857979Af25b959cDF1369df951a45DEb55f2904e",
+            "timestamp": "2019-02-12 05:05"
+        },
+        {
+            "avg": 79,
+            "complete": False,
+            "student_address": "0xDBEd414a980d757234Bfb2684999afB7aE799241",
+            "timestamp": "2019-02-12 05:05"
+        }]
+    }
+
+def _get_long_response():
+    return {
+        0: [{
+            "avg": 75.42233333333334,
+            "complete": False,
+            "student_address": "0x857979Af25b959cDF1369df951a45DEb55f2904d",
+            "timestamp": "2019-02-12 05:05"
+        },
+        {
+            "avg": 73.605,
+            "complete": False,
+            "student_address": "0xDBEd414a980d757234Bfb2684999afB7aE799240",
+            "timestamp": "2019-02-12 05:05"
+        },
+        {
+            "avg": 71,
+            "complete": False,
+            "student_address": "0xDBEd414a980d757234Bfb2684999afB7aE799480",
+            "timestamp": "2019-02-12 05:05"
+        }],
+        1: [{
+            "avg": 81,
+            "complete": False,
+            "student_address": "0x857979Af25b959cDF1369df951a45DEb55f2904e",
+            "timestamp": "2019-02-12 05:05"
+        },
+        {
+            "avg": 79,
+            "complete": False,
+            "student_address": "0xDBEd414a980d757234Bfb2684999afB7aE799241",
+            "timestamp": "2019-02-12 05:05"
+        },
+        {
+            "avg": 77,
+            "complete": False,
+            "student_address": "0xDBEd414a980d757234Bfb2684999afB7aE799481",
+            "timestamp": "2019-02-12 05:05"
+        }]
+    }
 
 def _get_query_result():
     return [{
@@ -260,6 +405,46 @@ def _get_query_result():
             "student_address": "0xDBEd414a980d757234Bfb2684999afB7aE799241",
             "timestamp": "2019-02-12 05:05"
         }]
+
+def _get_long_query_result():
+    return [
+        {
+            "avg": 75.42233333333334,
+            "complete": False,
+            "student_address": "0x857979Af25b959cDF1369df951a45DEb55f2904d",
+            "timestamp": "2019-02-12 05:05"
+        },
+        {
+            "avg": 73.605,
+            "complete": False,
+            "student_address": "0xDBEd414a980d757234Bfb2684999afB7aE799240",
+            "timestamp": "2019-02-12 05:05"
+        },
+        {
+            "avg": 81,
+            "complete": False,
+            "student_address": "0x857979Af25b959cDF1369df951a45DEb55f2904e",
+            "timestamp": "2019-02-12 05:05"
+        },
+        {
+            "avg": 79,
+            "complete": False,
+            "student_address": "0xDBEd414a980d757234Bfb2684999afB7aE799241",
+            "timestamp": "2019-02-12 05:05"
+        },
+        {
+            "avg": 71,
+            "complete": False,
+            "student_address": "0xDBEd414a980d757234Bfb2684999afB7aE799480",
+            "timestamp": "2019-02-12 05:05"
+        },
+        {
+            "avg": 77,
+            "complete": False,
+            "student_address": "0xDBEd414a980d757234Bfb2684999afB7aE799481",
+            "timestamp": "2019-02-12 05:05"
+        }
+    ]
 
 def _get_event():
     return {
@@ -307,41 +492,37 @@ def _get_query():
         'name': 'string',
         'start_date': 'string',
         'type': 'string'},
-        'query': {'details': [{'absolute': 3,
-            'degree_id': '5116f8681bb7d9d768cdf8c2a2d14de99c7401e90524596a1a85e1f7a11d742b',
-            'degree_name': 'string',
-            'faculty_id': '2be196098241d7cf29b422517a1f55ba7ef55c5003ff0bcb901463842e2ee7c9',
-            'faculty_name': 'string',
-            'university_id': '6835a0287d1c818cbb8811a8c4acf81edd85726c5faa8a0047f7ea3c29e97c36',
-            'university_name': 'string'}],
-        'results': [{'university_id': '6835a0287d1c818cbb8811a8c4acf81edd85726c5faa8a0047f7ea3c29e97c36',
-            'degree_id': '5116f8681bb7d9d768cdf8c2a2d14de99c7401e90524596a1a85e1f7a11d742b',
-            'course_id': None,
-            'result': [{'avg': 65.13333333333334,
-            'complete': False,
-            'student_address': '0x38b9118Fb0d7db10321eBffC694b946eF1CB37c5',
-            'timestamp': '2019-02-26 10:26'},
-            {'avg': 64.91766666666666,
-            'complete': False,
-            'student_address': '0x379510a728aA9269607f7037FFcbDe4c6d539f47',
-            'timestamp': '2019-02-26 10:26'},
-            {'avg': 64.36633333333334,
-            'complete': False,
-            'student_address': '0xDFc14F1E02A00244593dB12f53910C231eEFECAd',
-            'timestamp': '2019-02-26 10:26'}]}],
-        'responses': {'0x38b9118Fb0d7db10321eBffC694b946eF1CB37c5': {'sent': '2019-03-14 04:03',
-            'viewed': '',
-            'responded': '',
-            'accepted': False,
-            'attended': False},
-            '0x379510a728aA9269607f7037FFcbDe4c6d539f47': {'sent': '2019-03-14 04:03',
-            'viewed': '',
-            'responded': '',
-            'accepted': False,
-            'attended': False},
-            '0xDFc14F1E02A00244593dB12f53910C231eEFECAd': {'sent': '2019-03-14 04:03',
-            'viewed': '',
-            'responded': '',
-            'accepted': False,
-            'attended': False}},
-        'timestamp': '2019-03-14 04:03'}}]
+        'query': {
+            'details': [{'absolute': 3,
+                'degree_id': '5116f8681bb7d9d768cdf8c2a2d14de99c7401e90524596a1a85e1f7a11d742b',
+                'degree_name': 'string',
+                'faculty_id': '2be196098241d7cf29b422517a1f55ba7ef55c5003ff0bcb901463842e2ee7c9',
+                'faculty_name': 'string',
+                'university_id': '6835a0287d1c818cbb8811a8c4acf81edd85726c5faa8a0047f7ea3c29e97c36',
+                'university_name': 'string'}],
+            'results': [
+                {'avg': 64.91766666666666,
+                'complete': False,
+                'student_address': '0x379510a728aA9269607f7037FFcbDe4c6d539f47',
+                'timestamp': '2019-02-26 10:26'},
+                {'avg': 64.36633333333334,
+                'complete': False,
+                'student_address': '0xDFc14F1E02A00244593dB12f53910C231eEFECAd',
+                'timestamp': '2019-02-26 10:26'}],
+            'responses': {'0x38b9118Fb0d7db10321eBffC694b946eF1CB37c5': {'sent': '2019-03-14 04:03',
+                'viewed': '',
+                'responded': '',
+                'accepted': False,
+                'attended': False},
+                '0x379510a728aA9269607f7037FFcbDe4c6d539f47': {'sent': '2019-03-14 04:03',
+                'viewed': '',
+                'responded': '',
+                'accepted': False,
+                'attended': False},
+                '0xDFc14F1E02A00244593dB12f53910C231eEFECAd': {'sent': '2019-03-14 04:03',
+                'viewed': '',
+                'responded': '',
+                'accepted': False,
+                'attended': False}},
+            'timestamp': '2019-03-14 04:03'}
+        }]
