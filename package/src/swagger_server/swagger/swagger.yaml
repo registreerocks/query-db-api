@@ -121,6 +121,29 @@ paths:
           description: Authentication error
         '409':
           description: Conflict
+  /query/get_rsvp:
+    get:
+      tags:
+        - query
+      summary: retrieve number of rsvp's of a query
+      description: ''
+      operationId: swagger_server.controllers.query_db_functions.get_rsvp
+      parameters:
+        - in: query
+          name: id
+          description: query id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid input
+        '401':
+          description: Authentication error
+        '409':
+          description: Conflict
   /query/update_status/{id}:
     post:
       tags:

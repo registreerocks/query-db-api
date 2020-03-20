@@ -113,6 +113,20 @@ def get_queries_by_student(student_address):
     results = query_details.find({'query.results.student_address': student_address})
     return _build_student_result(student_address, results)
 
+@check_id
+@requires_auth
+@requires_scope('registree')
+def get_rsvp(id):
+    result = query_details.find_one({'_id': ObjectId(id)})
+    if not result:
+        return {'ERROR': 'No matching data found.'}, 409
+    else:
+        return _get_rsvp(result)
+
+def _get_rsvp(result):
+    accepted = [v for v in result['query']['responses'].values() if v['accepted'] == True]
+    return len(accepted)
+
 def _get_query(id):
     result = query_details.find_one({'_id': ObjectId(id)})
     if result:

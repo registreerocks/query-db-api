@@ -8,8 +8,8 @@ from freezegun import freeze_time
 
 from src.swagger_server.controllers.query_db_functions import (
     _add_infos, _build_student_result, _compute_ratios,
-    _expand_notify_students, _expand_query, _notify_students, _query,
-    _set_status, _update_event_details)
+    _expand_notify_students, _expand_query, _get_rsvp, _notify_students,
+    _query, _set_status, _update_event_details)
 
 
 @httpretty.activate
@@ -311,6 +311,10 @@ def test_expand_notify_students():
         }
     }
     assert(_expand_notify_students(old_notifications, result) == expected_output)
+
+def test_get_rsvp():
+    assert(_get_rsvp(_get_query()[0]) == 0)
+    assert(_get_rsvp(_get_event()) == 1)
 
 def _get_short_response():
     return {
