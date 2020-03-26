@@ -23,7 +23,7 @@ def post_query(body):
     query = body.get('query')
     try:
         query['results'] = _query(query.get('details'), token)
-        query['responses'] = _notify_students(query['results'])
+        query['responses'] = _add_responses(query['results'])
         query['timestamp'] = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M')
         body['query'] = query
         return str(query_details.insert_one(body).inserted_id)
@@ -81,7 +81,7 @@ def expand_query(id, body):
     else:
         try:
             expanded_result, new_result = _expand_query(body, query.results, token)
-            expanded_notifications = _expand_notify_students(query.responses, new_result)
+            expanded_notifications = _expand_add_responses(query.responses, new_result)
             query_details.update_one(
                 {'_id': ObjectId(id)}, 
                 {'$set': {
@@ -122,6 +122,27 @@ def get_rsvp(id):
         return {'ERROR': 'No matching data found.'}, 409
     else:
         return _get_rsvp(result)
+
+@check_id
+@requires_auth
+@requires_scope('registree')
+def notify_students(id):
+    result = query_details.find_one({'_id': ObjectId(id)})
+    if not result:
+        return {'ERROR': 'No matching data found.'}, 409
+    else:
+        updated_responses, students = _notify_students(result['query']['responses'])
+        query_details.update_one({'_id': ObjectId(id)}, {'$set': {'query.responses': updated_responses}}, upsert=False)
+        return students
+
+def _notify_students(responses):
+    timestamp = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M')
+    students = []
+    for k, v in responses.items():
+        if not v['sent']:
+            v['sent'] = timestamp
+            students.append(k)
+    return responses, students
 
 def _get_rsvp(result):
     accepted = [v for v in result['query']['responses'].values() if v['accepted'] == True]
@@ -190,29 +211,29 @@ def _query_student_db(query_list, token):
     else:
         raise ValueError('Query not possible, status code: '+ str(response.status_code))
 
-def _notify_students(query_results):
-    notifications = {}
+def _add_responses(query_results):
+    responses = {}
     for result in query_results:
-        notifications[result['student_address']] = {
-            'sent': datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M'),
+        responses[result['student_address']] = {
+            'sent': '',
             'viewed': '',
             'responded': '',
             'accepted': False,
             'attended': False
         }
-    return notifications
+    return responses
 
-def _expand_notify_students(notifications, query_results):
+def _expand_add_responses(responses, query_results):
     for result in query_results:
-        if not notifications.get(result['student_address']):
-            notifications[result['student_address']] = {
-                'sent': datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M'),
+        if not responses.get(result['student_address']):
+            responses[result['student_address']] = {
+                'sent': '',
                 'viewed': '',
                 'responded': '',
                 'accepted': False,
                 'attended': False
             }
-    return notifications
+    return responses
 
 def _compute_ratios(results):
     updated_results = []

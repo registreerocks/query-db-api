@@ -7,9 +7,9 @@ import pytest
 from freezegun import freeze_time
 
 from src.swagger_server.controllers.query_db_functions import (
-    _add_infos, _build_student_result, _compute_ratios,
-    _expand_notify_students, _expand_query, _get_rsvp, _notify_students,
-    _query, _set_status, _update_event_details)
+    _add_infos, _add_responses, _build_student_result, _compute_ratios,
+    _expand_add_responses, _expand_query, _get_rsvp, _notify_students, _query,
+    _set_status, _update_event_details)
 
 
 @httpretty.activate
@@ -55,40 +55,39 @@ def test_query_fail():
     with pytest.raises(ValueError, match='Query not possible, status code: 408'):
         _query(details, '12345')
 
-@freeze_time("2012-01-01 14:00")
-def test_notify_students():
+def test_add_responses():
     result = _get_query_result()
     expected_output = {
         "0x857979Af25b959cDF1369df951a45DEb55f2904d" : {
-            "sent": "2012-01-01 14:00",
+            "sent": "",
             "viewed": "",
             "responded": "",
             "accepted": False,
             "attended": False
         },
         "0xDBEd414a980d757234Bfb2684999afB7aE799240": {
-            "sent": "2012-01-01 14:00",
+            "sent": "",
             "viewed": "",
             "responded": "",
             "accepted": False,
             "attended": False
         },
         "0x857979Af25b959cDF1369df951a45DEb55f2904e" : {
-            "sent": "2012-01-01 14:00",
+            "sent": "",
             "viewed": "",
             "responded": "",
             "accepted": False,
             "attended": False
         },
         "0xDBEd414a980d757234Bfb2684999afB7aE799241": {
-            "sent": "2012-01-01 14:00",
+            "sent": "",
             "viewed": "",
             "responded": "",
             "accepted": False,
             "attended": False
         }
     }
-    assert(_notify_students(result) == expected_output)
+    assert(_add_responses(result) == expected_output)
 
 @freeze_time("2012-01-01 16:00")
 def test_set_status_viewed():
@@ -232,8 +231,7 @@ def test_expand_query():
     expected_output = _get_long_query_result()
     assert(_expand_query(details, _get_query_result(), '12345', ) == expected_output)
 
-@freeze_time("2012-01-01 15:00")
-def test_expand_notify_students():
+def test_expand_add_responses():
     result = _get_long_query_result()
     old_notifications = {
         "0x857979Af25b959cDF1369df951a45DEb55f2904d" : {
@@ -296,25 +294,51 @@ def test_expand_notify_students():
             "attended": False
         },
         "0xDBEd414a980d757234Bfb2684999afB7aE799480": {
-            "sent": "2012-01-01 15:00",
+            "sent": "",
             "viewed": "",
             "responded": "",
             "accepted": False,
             "attended": False
         },
         "0xDBEd414a980d757234Bfb2684999afB7aE799481": {
-            "sent": "2012-01-01 15:00",
+            "sent": "",
             "viewed": "",
             "responded": "",
             "accepted": False,
             "attended": False
         }
     }
-    assert(_expand_notify_students(old_notifications, result) == expected_output)
+    assert(_expand_add_responses(old_notifications, result) == expected_output)
 
 def test_get_rsvp():
     assert(_get_rsvp(_get_query()[0]) == 0)
     assert(_get_rsvp(_get_event()) == 1)
+
+@freeze_time("2019-03-14 04:03")
+def test_notify_students():
+    responses = {'0x38b9118Fb0d7db10321eBffC694b946eF1CB37c5': {'sent': '',
+                'viewed': '',
+                'responded': '',
+                'accepted': False,
+                'attended': False},
+                '0x379510a728aA9269607f7037FFcbDe4c6d539f47': {'sent': '',
+                'viewed': '',
+                'responded': '',
+                'accepted': False,
+                'attended': False},
+                '0xDFc14F1E02A00244593dB12f53910C231eEFECAd': {'sent': '',
+                'viewed': '',
+                'responded': '',
+                'accepted': False,
+                'attended': False}}
+    expected_students = [
+        '0x38b9118Fb0d7db10321eBffC694b946eF1CB37c5',
+        '0x379510a728aA9269607f7037FFcbDe4c6d539f47',
+        '0xDFc14F1E02A00244593dB12f53910C231eEFECAd'
+    ]
+    updated_responses, students = _notify_students(responses)
+    assert(students == expected_students)
+    assert (updated_responses == _get_query()[0]['query']['responses'])
 
 def _get_short_response():
     return {
