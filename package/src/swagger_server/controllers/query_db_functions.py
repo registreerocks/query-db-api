@@ -48,7 +48,7 @@ def get_queries_by_customer(customer_id):
 
 @check_id
 @requires_auth
-@requires_scope('recruiter', 'student')
+@requires_scope('student')
 def update_status(id, body):
     result = query_details.find_one({'_id': ObjectId(id)})
     if not result:
@@ -59,7 +59,7 @@ def update_status(id, body):
         return id
 
 @requires_auth
-@requires_scope('recruiter', 'student')
+@requires_scope('recruiter')
 @check_id
 def update(id, body):
     result = query_details.find_one({'_id': ObjectId(id)})
@@ -97,7 +97,7 @@ def expand_query(id, body):
 
 @check_id
 @requires_auth
-@requires_scope('recruiter', 'student')
+@requires_scope('student')
 def add_student_attendance(id, body):
     result = query_details.find_one({'_id': ObjectId(id)})
     if not result:
