@@ -71,6 +71,17 @@ def get_queries_by_student(student_address):
     results = query_details.find({'query.results.student_address': student_address})
     return _build_student_result(student_address, results)
 
+@requires_auth
+@requires_scope('recruiter')
+def dry_run(body):
+    token = get_token_auth_header()
+    query = body.get('query')
+    try:
+        result = _query(query.get('details'), token)
+        return len(result)
+    except ValueError as e:
+        return {'ERROR': str(e)}, 500
+
 @check_id
 @requires_auth
 @requires_scope('registree')
