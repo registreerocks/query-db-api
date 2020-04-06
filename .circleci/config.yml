@@ -27,7 +27,7 @@ jobs:
             docker build -t registree/$IMAGE_NAME:$TAG .
             echo $DOCKER_PWD | docker login -u $DOCKER_LOGIN --password-stdin
             docker push registree/$IMAGE_NAME:$TAG
-      # - run:
-      #     name: Deploy app to Digital Ocean Server via Docker
-      #     command: |
-      #       ssh -o StrictHostKeyChecking=no root@134.122.75.105 "/bin/bash ./deploy_app.sh registree/$IMAGE_NAME:$TAG"
+      - run:
+          name: Deploy app to Digital Ocean Server via Docker
+          command: |
+            ssh -o StrictHostKeyChecking=no root@134.122.75.105 "/bin/bash ./uct-deployment/RegistreeUpdateStaging.sh"
