@@ -9,7 +9,7 @@ jobs:
       - run:
           name: Setup VirtualEnv
           command: |
-            echo 'export TAG=latest' >> $BASH_ENV
+            echo 'export TAG=$CIRCLE_SHA1' >> $BASH_ENV
             echo 'export IMAGE_NAME=query-db-api' >> $BASH_ENV 
             python -m venv venv
             . venv/bin/activate
@@ -30,4 +30,5 @@ jobs:
       - run:
           name: Deploy app to Digital Ocean Server via Docker
           command: |
+            ssh -o StrictHostKeyChecking=no root@134.122.75.105 "export QUERY_TAG=$TAG"
             ssh -o StrictHostKeyChecking=no root@134.122.75.105 "/bin/bash ./uct-deployment/RegistreeUpdateStaging.sh"
