@@ -1,0 +1,8 @@
+connexion[swagger-ui]
+flask_cors
+pymongo
+python-dotenv
+python-jose-cryptodome
+pytest
+httpretty
+freezegun
