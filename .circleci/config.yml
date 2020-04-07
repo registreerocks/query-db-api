@@ -30,4 +30,4 @@ jobs:
       - run:
           name: Deploy app to Digital Ocean Server via Docker
           command: |
-            ssh -o StrictHostKeyChecking=no root@134.122.75.105 "export QUERY_TAG=$TAG;/bin/bash ./uct-deployment/RegistreeUpdateStaging.sh"
+            ssh -o StrictHostKeyChecking=no root@134.122.75.105 "sed 's/QUERY_TAG=.*/QUERY_TAG=$TAG/' -i './uct-deployment/.env';/bin/bash ./uct-deployment/RegistreeUpdateStaging.sh"
