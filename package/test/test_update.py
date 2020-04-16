@@ -6,7 +6,7 @@ from freezegun import freeze_time
 
 from src.swagger_server.controllers.update import (_add_infos,
                                                    _expand_add_responses,
-                                                   _expand_query,
+                                                   _expand_query_degree,
                                                    _notify_students,
                                                    _set_status,
                                                    _update_event_details)
@@ -107,16 +107,18 @@ def test_expand_query():
     details = [{
         "university_id": "3f98f095ef1a7b782d9c897d8d004690d598ebe4c301f14256366beeaf083365",
         "degree_id": "7c9a1789f207659f2a28ee16737946d6b4189cb507ddd0fedc92978acaba4dfa",
-        "absolute": 3
+        "absolute": 3,
+        "degree_name": "Fintech"
     },
     {
         "university_id": "3f98f095ef1a7b782d9c897d8d004690d598ebe4c301f14256366beeaf083365",
         "degree_id": "7c9a1789f207659f2a28ee16737946d6b4189cb507ddd0fedc92978acaba4dfb",
-        "absolute": 3
+        "absolute": 3,
+        "degree_name": "Statistics"
     }]
 
     expected_output = _get_long_query_result()
-    assert(_expand_query(details, _get_query_result(), '12345', ) == expected_output)
+    assert(_expand_query_degree(details, _get_query_result(), '12345', ) == expected_output)
 
 @freeze_time("2019-03-14 04:03")
 def test_notify_students():

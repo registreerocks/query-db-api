@@ -4,11 +4,11 @@ from bson import ObjectId
 
 from .authentication import (get_token_auth_header, requires_auth,
                              requires_scope)
-from .create import _add_responses, _query
+from .create import _add_responses, _query_degree
 from .db import query_details
 from .get import _build_student_result, _compute_ratios, _get_query, _get_rsvp
 from .helpers import _stringify_object_id, check_id
-from .update import (_add_infos, _expand_add_responses, _expand_query,
+from .update import (_add_infos, _expand_add_responses, _expand_query_degree,
                      _notify_students, _set_status, _update_event_details)
 
 
@@ -26,15 +26,26 @@ def add_student_attendance(id, body):
 
 @requires_auth
 @requires_scope('recruiter')
+def dry_run_degree(body):
+    token = get_token_auth_header()
+    query = body.get('query')
+    try:
+        result = _query_degree(query.get('details'), token)
+        return len(result.keys())
+    except ValueError as e:
+        return {'ERROR': str(e)}, 500
+
+@requires_auth
+@requires_scope('recruiter')
 @check_id
-def expand_query(id, body):
+def expand_query_degree(id, body):
     token = get_token_auth_header()
     query = query_details.find_one({'_id': ObjectId(id)})
     if not query:
         return {'ERROR': 'No matching data found.'}, 409
     else:
         try:
-            expanded_result, new_result = _expand_query(body, query.results, token)
+            expanded_result, new_result = _expand_query_degree(body, query.results, token)
             expanded_notifications = _expand_add_responses(query.responses, new_result)
             query_details.update_one(
                 {'_id': ObjectId(id)}, 
@@ -68,19 +79,8 @@ def get_queries_by_customer(customer_id):
 @requires_auth
 @requires_scope('student')
 def get_queries_by_student(student_address):
-    results = query_details.find({'query.results.student_address': student_address})
+    results = query_details.find({'query.results.' + student_address: {"$exists": True}})
     return _build_student_result(student_address, results)
-
-@requires_auth
-@requires_scope('recruiter')
-def dry_run(body):
-    token = get_token_auth_header()
-    query = body.get('query')
-    try:
-        result = _query(query.get('details'), token)
-        return len(result)
-    except ValueError as e:
-        return {'ERROR': str(e)}, 500
 
 @check_id
 @requires_auth
@@ -106,11 +106,11 @@ def notify_students(id):
 
 @requires_auth
 @requires_scope('recruiter')
-def post_query(body):
+def query_degree(body):
     token = get_token_auth_header()
     query = body.get('query')
     try:
-        query['results'] = _query(query.get('details'), token)
+        query['results'] = _query_degree(query.get('details'), token)
         query['responses'] = _add_responses(query['results'])
         query['timestamp'] = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M')
         body['query'] = query

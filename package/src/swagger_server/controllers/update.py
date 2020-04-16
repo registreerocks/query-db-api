@@ -1,6 +1,6 @@
 import datetime
 
-from .create import _query
+from .create import _query_degree
 
 
 def _add_infos(body, result):
@@ -14,9 +14,9 @@ def _add_infos(body, result):
     return student_record
 
 def _expand_add_responses(responses, query_results):
-    for result in query_results:
-        if not responses.get(result['student_address']):
-            responses[result['student_address']] = {
+    for student_address, _ in query_results.items():
+        if not responses.get(student_address):
+            responses[student_address] = {
                 'sent': '',
                 'viewed': '',
                 'responded': '',
@@ -25,13 +25,11 @@ def _expand_add_responses(responses, query_results):
             }
     return responses
 
-def _expand_query(details, old_results, token):
+def _expand_query_degree(details, old_results, token):
     try:
-        new_results = _query(details, token)
-        for item in new_results:
-            if item not in old_results:
-                old_results.append(item)
-        return old_results
+        new_results = _query_degree(details, token)
+        print({**old_results, **{student_address: value for student_address, value in new_results.items() if student_address not in old_results.keys()}})
+        return {**old_results, **{student_address: value for student_address, value in new_results.items() if student_address not in old_results.keys()}}
     except ValueError: raise
 
 def _notify_students(responses):

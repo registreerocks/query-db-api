@@ -7,13 +7,13 @@ tags:
   - name: Query DB
     description: ''
 paths:
-  /query/post:
+  /query/degree:
     post:
       tags:
         - query
       summary: make and store a new query
       description: ''
-      operationId: swagger_server.controllers.query_db_functions.post_query
+      operationId: swagger_server.controllers.query_db_functions.query_degree
       responses:
         '200':
           description: OK
@@ -25,16 +25,16 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Query'
+              $ref: '#/components/schemas/QueryDegree'
         description: query object
         required: true
-  /query/dry_run:
+  /dry_run/degree:
     post:
       tags:
         - query
       summary: get number of students in query
       description: ''
-      operationId: swagger_server.controllers.query_db_functions.dry_run
+      operationId: swagger_server.controllers.query_db_functions.dry_run_degree
       responses:
         '200':
           description: OK
@@ -46,16 +46,16 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Query'
+              $ref: '#/components/schemas/QueryDegree'
         description: query object
         required: true
-  /query/expand/{id}:
+  /expand/degree{id}:
     post:
       tags:
         - query
       summary: expand a query
       description: ''
-      operationId: swagger_server.controllers.query_db_functions.expand_query
+      operationId: swagger_server.controllers.query_db_functions.expand_query_degree
       responses:
         '200':
           description: OK
@@ -74,7 +74,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/QueryExpand'
+              $ref: '#/components/schemas/QueryExpandDegree'
         description: query object
         required: true
   /query/get:
@@ -274,7 +274,7 @@ servers:
   - url: 'http://localhost:8000/v0.1'
 components:
   schemas:
-    Query:
+    QueryDegree:
       type: object
       properties:
         customer_id:
@@ -318,17 +318,13 @@ components:
                     type: string
                   degree_name:
                     type: string
-                  course_id:
-                    type: string
-                  course_name:
-                    type: string
                   absolute:
                     type: integer
                   percentage:
                     type: integer
       xml:
-        name: Query
-    QueryExpand:
+        name: QueryDegree
+    QueryExpandDegree:
       type: array
       items:
         type: object
@@ -345,16 +341,12 @@ components:
             type: string
           degree_name:
             type: string
-          course_id:
-            type: string
-          course_name:
-            type: string
           absolute:
             type: integer
           percentage:
             type: integer
       xml:
-        name: QueryUpdate
+        name: QueryExpandDegree
     UpdateStatus:
       type: object
       properties:
