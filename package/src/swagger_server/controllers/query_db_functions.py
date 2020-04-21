@@ -38,26 +38,22 @@ def dry_run_degree(body):
 @requires_scope('recruiter')
 @check_id
 def expand_query_degree(id, body):
-    token = get_token_auth_header()
     query = query_details.find_one({'_id': ObjectId(id)})
     if not query:
         return {'ERROR': 'No matching data found.'}, 409
     else:
-        try:
-            expanded_result, new_result = _expand_query_degree(body, query.results, token)
-            expanded_notifications = _expand_add_responses(query.responses, new_result)
-            query_details.update_one(
-                {'_id': ObjectId(id)}, 
-                {'$set': {
-                    'query.details': body,
-                    'query.results': expanded_result, 
-                    'query.responses': expanded_notifications, 
-                    'query.timestamp': datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M')
-                    }
-                }, upsert=False)
-            return _get_query(id)
-        except ValueError as e:
-            return {'ERROR': str(e)}, 500
+        expanded_result, new_result = _expand_query_degree(body, query.results)
+        expanded_notifications = _expand_add_responses(query.responses, new_result)
+        query_details.update_one(
+            {'_id': ObjectId(id)}, 
+            {'$set': {
+                'query.details': body,
+                'query.results': expanded_result, 
+                'query.responses': expanded_notifications, 
+                'query.timestamp': datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M')
+                }
+            }, upsert=False)
+        return _get_query(id)
 
 @requires_auth
 @requires_scope('recruiter')
