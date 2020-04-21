@@ -4,7 +4,8 @@ from os import environ as env
 
 import requests
 
-STUDENT_DB_URL = env.get('STUDENT_DB_URL', 'http://example.com')
+from .query import _query_bulk
+
 
 def _add_responses(query_results):
     responses = {}
@@ -32,22 +33,10 @@ def _build_query(_type, details):
         id_to_name[type_id] = item.get(_type + '_name')
     return query_list, id_to_name
 
-def _query_degree(details, token):
+def _query_degree(details):
     query_list, id_to_degree_name = _build_query('degree', details)
+    query_response = _query_bulk(query_list)
     query_results = {}
-    try:
-        query_response = _query_student_db(query_list, token)
-        for degree_id, response in query_response.items():
-            query_results = {**query_results, **{student_address: {**value, **{'degree_name': id_to_degree_name[degree_id]}} for student_address, value in response.items()}}
-        return query_results
-    except ValueError: raise
-
-def _query_student_db(query_list, token):
-    headers = {'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'}
-    body = {'query_list': query_list}
-    response = requests.post(STUDENT_DB_URL + '/query/bulk', data=json.dumps(body), headers=headers)
-    if response.status_code == 200:
-        return json.loads(response.text)
-    else:
-        raise ValueError('Query not possible, status code: '+ str(response.status_code))
-
+    for degree_id, response in query_response.items():
+        query_results = {**query_results, **{student_address: {**value, **{'degree_name': id_to_degree_name[degree_id]}} for student_address, value in response.items()}}
+    return query_results

@@ -1,14 +1,14 @@
 import json
 import re
 
-import httpretty
+import mock
 from freezegun import freeze_time
 
 from src.swagger_server.controllers.update import (_add_infos,
                                                    _expand_add_responses,
                                                    _expand_query_degree,
                                                    _notify_students,
-                                                   _set_status,
+                                                   _query_degree, _set_status,
                                                    _update_event_details)
 
 from .helpers import (_get_event, _get_event_details, _get_long_query_result,
@@ -94,15 +94,9 @@ def test_expand_add_responses():
     }
     assert(_expand_add_responses(old_notifications, result) == expected_output)
 
-@httpretty.activate
-def test_expand_query():
-  
-    httpretty.register_uri(
-        httpretty.POST,
-        re.compile("http://.*"),
-        content_type='application/json',
-        body=json.dumps(_get_long_response())
-    )
+@mock.patch('src.swagger_server.controllers.update._query_degree')
+def test_expand_query(query_result):
+    query_result.return_value = _get_long_query_result()
 
     details = [{
         "university_id": "3f98f095ef1a7b782d9c897d8d004690d598ebe4c301f14256366beeaf083365",
@@ -117,8 +111,45 @@ def test_expand_query():
         "degree_name": "Statistics"
     }]
 
-    expected_output = _get_long_query_result()
-    assert(_expand_query_degree(details, _get_query_result(), '12345', ) == expected_output)
+    expected_output = {
+      "0x857979Af25b959cDF1369df951a45DEb55f2904d": {
+        "avg": 75.42233333333334,
+        "complete": False,
+        "timestamp": "2019-02-12 05:05",
+        "degree_name": "Fintech"
+      },
+      "0xDBEd414a980d757234Bfb2684999afB7aE799240": {
+        "avg": 73.605,
+        "complete": False,
+        "timestamp": "2019-02-12 05:05",
+        "degree_name": "Fintech"
+      },
+      "0x857979Af25b959cDF1369df951a45DEb55f2904e": {
+        "avg": 81,
+        "complete": False,
+        "timestamp": "2019-02-12 05:05",
+        "degree_name": "Statistics"
+      },
+      "0xDBEd414a980d757234Bfb2684999afB7aE799241": {
+        "avg": 79,
+        "complete": False,
+        "timestamp": "2019-02-12 05:05",
+        "degree_name": "Statistics"
+      },
+      "0xDBEd414a980d757234Bfb2684999afB7aE799480": {
+        "avg": 71,
+        "complete": False,
+        "timestamp": "2019-02-13 05:05",
+        "degree_name": "Fintech"
+      },
+      "0xDBEd414a980d757234Bfb2684999afB7aE799481": {
+        "avg": 77,
+        "complete": False,
+        "timestamp": "2019-02-13 05:05",
+        "degree_name": "Statistics"
+      }
+    }
+    assert(_expand_query_degree(details, _get_query_result()) == expected_output)
 
 @freeze_time("2019-03-14 04:03")
 def test_notify_students():

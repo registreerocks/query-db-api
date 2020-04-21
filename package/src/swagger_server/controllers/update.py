@@ -25,12 +25,9 @@ def _expand_add_responses(responses, query_results):
             }
     return responses
 
-def _expand_query_degree(details, old_results, token):
-    try:
-        new_results = _query_degree(details, token)
-        print({**old_results, **{student_address: value for student_address, value in new_results.items() if student_address not in old_results.keys()}})
-        return {**old_results, **{student_address: value for student_address, value in new_results.items() if student_address not in old_results.keys()}}
-    except ValueError: raise
+def _expand_query_degree(details, old_results):
+    new_results = _query_degree(details)
+    return {**old_results, **{student_address: value for student_address, value in new_results.items() if student_address not in old_results.keys()}}
 
 def _notify_students(responses):
     timestamp = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M')

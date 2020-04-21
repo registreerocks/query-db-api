@@ -1,10 +1,10 @@
 import json
 import re
 
-import httpretty
+import mock
 import pytest
 
-from src.swagger_server.controllers.create import _add_responses, _query_degree
+from src.swagger_server.controllers.create import _add_responses, _query_degree, _query_bulk
 from .helpers import _get_short_response, _get_query_result
 
 
@@ -42,15 +42,9 @@ def test_add_responses():
     }
     assert(_add_responses(result) == expected_output)
 
-@httpretty.activate
-def test_query_degree():
-
-    httpretty.register_uri(
-        httpretty.POST,
-        re.compile("http://.*"),
-        content_type='application/json',
-        body=json.dumps(_get_short_response())
-    )
+@mock.patch('src.swagger_server.controllers.create._query_bulk')
+def test_query_degree(query_result):
+    query_result.return_value = _get_short_response()
 
     details = [{
         "university_id": "3f98f095ef1a7b782d9c897d8d004690d598ebe4c301f14256366beeaf083365",
@@ -66,24 +60,4 @@ def test_query_degree():
     }]
 
     expected_output = _get_query_result()
-    assert(_query_degree(details, '12345') == expected_output)
-
-@httpretty.activate
-def test_query_fail():
-
-    httpretty.register_uri(
-        httpretty.POST,
-        re.compile("http://.*"),
-        content_type='application/json',
-        status=408
-    )
-
-    details = [{
-        "university_id": "3f98f095ef1a7b782d9c897d8d004690d598ebe4c301f14256366beeaf083365",
-        "degree_id": "7c9a1789f207659f2a28ee16737946d6b4189cb507ddd0fedc92978acaba4dfa",
-        "absolute": 2
-    }]
-
-    with pytest.raises(ValueError, match='Query not possible, status code: 408'):
-        _query_degree(details, '12345')
-
+    assert(_query_degree(details) == expected_output)

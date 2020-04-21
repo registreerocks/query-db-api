@@ -27,10 +27,9 @@ def add_student_attendance(id, body):
 @requires_auth
 @requires_scope('recruiter')
 def dry_run_degree(body):
-    token = get_token_auth_header()
     query = body.get('query')
     try:
-        result = _query_degree(query.get('details'), token)
+        result = _query_degree(query.get('details'))
         return len(result.keys())
     except ValueError as e:
         return {'ERROR': str(e)}, 500
@@ -107,10 +106,9 @@ def notify_students(id):
 @requires_auth
 @requires_scope('recruiter')
 def query_degree(body):
-    token = get_token_auth_header()
     query = body.get('query')
     try:
-        query['results'] = _query_degree(query.get('details'), token)
+        query['results'] = _query_degree(query.get('details'))
         query['responses'] = _add_responses(query['results'])
         query['timestamp'] = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M')
         body['query'] = query

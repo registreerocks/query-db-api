@@ -4,5 +4,5 @@ pymongo
 python-dotenv
 python-jose-cryptodome
 pytest
-httpretty
 freezegun
+mock
