@@ -15,10 +15,7 @@ setup(
       'connexion[swagger-ui]', 
       'flask_cors', 
       'pymongo', 
-      'registree-auth'
+      'registree-auth @ git+git://github.com/registreerocks/registree-auth.git'
       ],
-   dependency_links=[
-        'git+git://github.com/registreerocks/registree-auth.git'
-    ],
    test_require=['pytest', 'mock', 'freezegun']
 )
