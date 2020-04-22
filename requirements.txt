@@ -1,8 +1,7 @@
 connexion[swagger-ui]
 flask_cors
 pymongo
-python-dotenv
-python-jose-cryptodome
 pytest
 freezegun
 mock
+git+git://github.com/registreerocks/registree-auth.git

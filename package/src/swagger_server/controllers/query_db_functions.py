@@ -2,8 +2,8 @@ import datetime
 
 from bson import ObjectId
 
-from .authentication import (get_token_auth_header, requires_auth,
-                             requires_scope)
+from registree_auth import get_token_auth_header, requires_auth, requires_scope
+
 from .create import _add_responses, _query_degree
 from .db import query_details
 from .get import _build_student_result, _compute_ratios, _get_query, _get_rsvp
