@@ -38,12 +38,12 @@ def dry_run_degree(body):
 @requires_scope('recruiter')
 @check_id
 def expand_query_degree(id, body):
-    query = query_details.find_one({'_id': ObjectId(id)})
-    if not query:
+    old_event = query_details.find_one({'_id': ObjectId(id)})
+    if not old_event:
         return {'ERROR': 'No matching data found.'}, 409
     else:
-        expanded_result, new_result = _expand_query_degree(body, query.results)
-        expanded_notifications = _expand_add_responses(query.responses, new_result)
+        expanded_result, new_result = _expand_query_degree(body, old_event['query']['results'])
+        expanded_notifications = _expand_add_responses(old_event['query']['responses'], new_result)
         query_details.update_one(
             {'_id': ObjectId(id)}, 
             {'$set': {

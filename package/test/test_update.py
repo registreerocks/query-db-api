@@ -111,7 +111,7 @@ def test_expand_query(query_result):
         "degree_name": "Statistics"
     }]
 
-    expected_output = {
+    expected_output = ({
       "0x857979Af25b959cDF1369df951a45DEb55f2904d": {
         "avg": 75.42233333333334,
         "complete": False,
@@ -148,7 +148,7 @@ def test_expand_query(query_result):
         "timestamp": "2019-02-13 05:05",
         "degree_name": "Statistics"
       }
-    }
+    }, _get_long_query_result())
     assert(_expand_query_degree(details, _get_query_result()) == expected_output)
 
 @freeze_time("2019-03-14 04:03")

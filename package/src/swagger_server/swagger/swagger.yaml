@@ -49,7 +49,7 @@ paths:
               $ref: '#/components/schemas/QueryDegree'
         description: query object
         required: true
-  /expand/degree{id}:
+  /expand/degree/{id}:
     post:
       tags:
         - query
