@@ -90,7 +90,7 @@ def get_rsvp(id):
 @check_id
 @requires_auth
 @requires_scope('registree')
-def notify_students(id):
+def notify_students(id, body):
     result = query_details.find_one({'_id': ObjectId(id)})
     if not result:
         return {'ERROR': 'No matching data found.'}, 409
