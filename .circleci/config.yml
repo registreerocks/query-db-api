@@ -27,7 +27,66 @@ jobs:
             docker build -t registree/$IMAGE_NAME:$TAG .
             echo $DOCKER_PWD | docker login -u $DOCKER_LOGIN --password-stdin
             docker push registree/$IMAGE_NAME:$TAG
+
+  deploy-stage:
+    docker:
+      - image: circleci/python:3.7.5
+    steps:
+      - run:
+          name: Setup VirtualEnv
+          command: |
+            echo 'export TAG=$(echo $CIRCLE_SHA1 | cut -c -7)' >> $BASH_ENV
       - run:
           name: Deploy app to Digital Ocean Server via Docker
           command: |
             ssh -o StrictHostKeyChecking=no root@134.122.75.105 "sed 's/QUERY_TAG=.*/QUERY_TAG=$TAG/' -i './backend-staging/.env';/bin/bash ./backend-staging/RegistreeUpdateStaging.sh"
+
+  build-prod:
+    docker:
+      - image: circleci/python:3.7.5
+    steps:
+      - checkout
+      - run:
+          name: Setup VirtualEnv
+          command: |
+            echo 'export TAG=$CIRCLE_TAG' >> $BASH_ENV
+            echo 'export IMAGE_NAME=query-db-api' >> $BASH_ENV 
+            python -m venv venv
+            . venv/bin/activate
+            pip install --no-cache-dir -r requirements.txt
+      - run:
+          name: Run Tests
+          command: |
+            . venv/bin/activate
+            pytest
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - run:
+          name: Build and push Docker image
+          command: |
+            docker build -t registree/$IMAGE_NAME:$TAG .
+            docker tag registree/$IMAGE_NAME:$TAG registree/$IMAGE_NAME:latest
+            echo $DOCKER_PWD | docker login -u $DOCKER_LOGIN --password-stdin
+            docker push registree/$IMAGE_NAME:$TAG
+            docker push registree/$IMAGE_NAME:latest
+
+workflows:
+  version: 2
+  build-deploy:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only: dev
+      - deploy-stage:
+          requires:
+            - build
+          filters:
+            branches:
+              only: dev
+      - build-prod:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^[0-9].*/
