@@ -7,23 +7,74 @@ tags:
   - name: Query DB
     description: ''
 paths:
-  /query/post:
+  /query/degree:
     post:
       tags:
         - query
       summary: make and store a new query
       description: ''
-      operationId: swagger_server.controllers.query_db_functions.post_query
+      operationId: swagger_server.controllers.query_db_functions.query_degree
       responses:
         '200':
           description: OK
         '401':
           description: Authentication error
+        '500':
+          description: Internal error
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Query'
+              $ref: '#/components/schemas/QueryDegree'
+        description: query object
+        required: true
+  /dry_run/degree:
+    post:
+      tags:
+        - query
+      summary: get number of students in query
+      description: ''
+      operationId: swagger_server.controllers.query_db_functions.dry_run_degree
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Authentication error
+        '500':
+          description: Internal error
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueryDegree'
+        description: query object
+        required: true
+  /expand/degree/{id}:
+    post:
+      tags:
+        - query
+      summary: expand a query
+      description: ''
+      operationId: swagger_server.controllers.query_db_functions.expand_query_degree
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Authentication error
+        '500':
+          description: Internal error
+      parameters:
+        - name: id
+          in: path
+          description: ID of query to be expanded
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueryExpandDegree'
         description: query object
         required: true
   /query/get:
@@ -87,6 +138,29 @@ paths:
       responses:
         '200':
           description: OK
+        '401':
+          description: Authentication error
+        '409':
+          description: Conflict
+  /query/get_rsvp:
+    get:
+      tags:
+        - query
+      summary: retrieve number of rsvp's of a query
+      description: ''
+      operationId: swagger_server.controllers.query_db_functions.get_rsvp
+      parameters:
+        - in: query
+          name: id
+          description: query id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid input
         '401':
           description: Authentication error
         '409':
@@ -175,11 +249,32 @@ paths:
               $ref: '#/components/schemas/AddInfo'
         description: student address, first name, last name, id
         required: true
+  /query/notify_students/{id}:
+    post:
+      tags:
+        - query
+      summary: set students' notification status to "sent", return student ids
+      description: ''
+      operationId: swagger_server.controllers.query_db_functions.notify_students
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Authentication error
+        '409':
+          description: Conflict
+      parameters:
+        - name: id
+          in: path
+          description: ID of event to which students should be invited
+          required: true
+          schema:
+            type: string
 servers:
   - url: 'http://localhost:8000/v0.1'
 components:
   schemas:
-    Query:
+    QueryDegree:
       type: object
       properties:
         customer_id:
@@ -223,16 +318,35 @@ components:
                     type: string
                   degree_name:
                     type: string
-                  course_id:
-                    type: string
-                  course_name:
-                    type: string
                   absolute:
                     type: integer
                   percentage:
                     type: integer
       xml:
-        name: Query
+        name: QueryDegree
+    QueryExpandDegree:
+      type: array
+      items:
+        type: object
+        properties:
+          university_id: 
+            type: string
+          university_name: 
+            type: string
+          faculty_id: 
+            type: string
+          faculty_name: 
+            type: string
+          degree_id:
+            type: string
+          degree_name:
+            type: string
+          absolute:
+            type: integer
+          percentage:
+            type: integer
+      xml:
+        name: QueryExpandDegree
     UpdateStatus:
       type: object
       properties:

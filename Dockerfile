@@ -14,7 +14,7 @@ RUN  apt-get update -y && \
 RUN mkdir -p /usr/src/package
 COPY ./package /usr/src/package
 WORKDIR /usr/src/package
-RUN pip install -e .
+RUN pip install -e . 
 
 # Deployment
 RUN apt-get install supervisor -y

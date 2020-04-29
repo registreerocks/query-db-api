@@ -8,11 +8,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8003:8000"
-    environment:
-      AUTH0_DOMAIN: "registree.eu.auth0.com"
-      API_IDENTIFIER: "https://registree.rocks/apis"
-      ALGORITHMS: "['RS256']"
-      STUDENT_DB_URL: "http://student-db-api:8000/v0.1"
+    env_file:
+      - api.env
     depends_on:
       - mongodb
     networks:
@@ -23,6 +20,8 @@ services:
   mongodb:
     image: mongo:3.6
     command: mongod
+    env_file:
+      - mongo.env
     networks:
       - backbone
     volumes:

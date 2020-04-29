@@ -1,31 +1,59 @@
 import datetime
-import json
-from os import environ as env
 
-import requests
 from bson import ObjectId
-from pymongo import MongoClient
 
-from .authentication import (get_token_auth_header, requires_auth,
-                             requires_scope)
-from .helpers import check_id
+from registree_auth import get_token_auth_header, requires_auth, requires_scope
 
-STUDENT_DB_URL = env.get('STUDENT_DB_URL', 'http://example.com')
+from .create import _add_responses, _query_degree
+from .db import query_details
+from .get import _build_student_result, _compute_ratios, _get_query, _get_rsvp
+from .helpers import _stringify_object_id, check_id
+from .update import (_add_infos, _expand_add_responses, _expand_query_degree,
+                     _notify_students, _set_status, _update_event_details)
 
-CLIENT = MongoClient('mongodb://mongodb:27017/')
-DB = CLIENT.database
-query_details = DB.query_db
+
+@check_id
+@requires_auth
+@requires_scope('student')
+def add_student_attendance(id, body):
+    result = query_details.find_one({'_id': ObjectId(id)})
+    if not result:
+        return {'ERROR': 'No matching data found.'}, 409
+    else:
+        student_record = _add_infos(body, result)
+        query_details.update_one({'_id': ObjectId(id)}, {'$set': {'query.responses.' + body.get('student_address'): student_record}}, upsert=False)
+        return id
 
 @requires_auth
 @requires_scope('recruiter')
-def post_query(body):
-    token = get_token_auth_header()
+def dry_run_degree(body):
     query = body.get('query')
-    query['results'] = _query(query.get('details'), token)
-    query['responses'] = _notify_students(query['results'])
-    query['timestamp'] = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M')
-    body['query'] = query
-    return str(query_details.insert_one(body).inserted_id)
+    try:
+        result = _query_degree(query.get('details'))
+        return len(result.keys())
+    except ValueError as e:
+        return {'ERROR': str(e)}, 500
+
+@requires_auth
+@requires_scope('recruiter')
+@check_id
+def expand_query_degree(id, body):
+    old_event = query_details.find_one({'_id': ObjectId(id)})
+    if not old_event:
+        return {'ERROR': 'No matching data found.'}, 409
+    else:
+        expanded_result, new_result = _expand_query_degree(body, old_event['query']['results'])
+        expanded_notifications = _expand_add_responses(old_event['query']['responses'], new_result)
+        query_details.update_one(
+            {'_id': ObjectId(id)}, 
+            {'$set': {
+                'query.details': body,
+                'query.results': expanded_result, 
+                'query.responses': expanded_notifications, 
+                'query.timestamp': datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M')
+                }
+            }, upsert=False)
+        return _get_query(id)
 
 @requires_auth
 @requires_scope('recruiter')
@@ -43,20 +71,49 @@ def get_queries_by_customer(customer_id):
     else:
         return {'ERROR': 'No matching data found.'}, 409
 
+@requires_auth
+@requires_scope('student')
+def get_queries_by_student(student_address):
+    results = query_details.find({'query.results.' + student_address: {"$exists": True}})
+    return _build_student_result(student_address, results)
+
 @check_id
 @requires_auth
-@requires_scope('recruiter', 'student')
-def update_status(id, body):
+@requires_scope('registree')
+def get_rsvp(id):
     result = query_details.find_one({'_id': ObjectId(id)})
     if not result:
         return {'ERROR': 'No matching data found.'}, 409
     else:
-        student_record = _set_status(body, result)
-        query_details.update_one({'_id': ObjectId(id)}, {'$set': {'query.responses.' + body.get('student_address'): student_record}}, upsert=False)
-        return id
+        return _get_rsvp(result)
+
+@check_id
+@requires_auth
+@requires_scope('registree')
+def notify_students(id, body):
+    result = query_details.find_one({'_id': ObjectId(id)})
+    if not result:
+        return {'ERROR': 'No matching data found.'}, 409
+    else:
+        updated_responses, students = _notify_students(result['query']['responses'])
+        query_details.update_one({'_id': ObjectId(id)}, {'$set': {'query.responses': updated_responses}}, upsert=False)
+        return students
 
 @requires_auth
-@requires_scope('recruiter', 'student')
+@requires_scope('recruiter')
+def query_degree(body):
+    query = body.get('query')
+    try:
+        query['results'] = _query_degree(query.get('details'))
+        query['responses'] = _add_responses(query['results'])
+        query['timestamp'] = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M')
+        body['query'] = query
+        return str(query_details.insert_one(body).inserted_id)
+    except ValueError as e:
+        return {'ERROR': str(e)}, 500
+
+@requires_auth
+@requires_scope('recruiter')
 @check_id
 def update(id, body):
     result = query_details.find_one({'_id': ObjectId(id)})
@@ -69,160 +126,12 @@ def update(id, body):
 
 @check_id
 @requires_auth
-@requires_scope('recruiter', 'student')
-def add_student_attendance(id, body):
+@requires_scope('student')
+def update_status(id, body):
     result = query_details.find_one({'_id': ObjectId(id)})
     if not result:
         return {'ERROR': 'No matching data found.'}, 409
     else:
-        student_record = _add_infos(body, result)
+        student_record = _set_status(body, result)
         query_details.update_one({'_id': ObjectId(id)}, {'$set': {'query.responses.' + body.get('student_address'): student_record}}, upsert=False)
         return id
-
-@requires_auth
-@requires_scope('student')
-def get_queries_by_student(student_address):
-    results = query_details.find({'query.results.result.student_address': student_address})
-    return _build_student_result(student_address, results)
-
-def _get_query(id):
-    result = query_details.find_one({'_id': ObjectId(id)})
-    if result:
-        result['_id'] = str(result['_id'])
-        metrics_result = _compute_ratios([result])[0]
-        return metrics_result
-    else:
-        return {'ERROR': 'No matching data found.'}, 409
-
-def _query(details, token):
-    query_results, query_list = _build_query(details)
-    query_response = _query_student_db(query_list, token)
-    print(query_response)
-    for i, item in enumerate(query_results):
-        item['result'] = query_response.get(str(i))
-    return query_results
-
-def _build_query(details):
-    query_results = []
-    query_list = []
-    for item in details:
-        query_results.append({
-            'university_id': item.get('university_id'),
-            'faculty_id': item.get('faculty_id'),
-            'degree_id': item.get('degree_id'),
-            'course_id': item.get('course_id')
-        })
-        if item.get('course_id'):
-            query_list.append({
-                'type': 'course',
-                'type_id': item.get('course_id'),
-                'x': item.get('absolute', 0) | item.get('percentage', 0),
-                'absolute': True if item.get('absolute', 0) > item.get('percentage', 0) else False
-            })
-        elif item.get('degree_id'):
-            query_list.append({
-                'type': 'degree',
-                'type_id': item.get('degree_id'),
-                'x': item.get('absolute', 0) | item.get('percentage', 0),
-                'absolute': True if item.get('absolute', 0) > item.get('percentage', 0) else False
-            })
-        elif item.get('faculty_id'):
-            query_list.append({
-                'type': 'faculty',
-                'type_id': item.get('faculty_id'),
-                'x': item.get('absolute', 0) | item.get('percentage', 0),
-                'absolute': True if item.get('absolute', 0) > item.get('percentage', 0) else False
-            })
-    return query_results, query_list
-
-def _query_student_db(query_list, token):
-    headers = {'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'}
-    body = {'query_list': query_list}
-    response = requests.post(STUDENT_DB_URL + '/query/bulk', data=json.dumps(body), headers=headers)
-    if response.status_code == 200:
-        return json.loads(response.text)
-    else:
-        
-        raise ValueError('Query not possible, status code: '+ response.status_code)
-
-def _notify_students(query_results):
-    notifications = {}
-    for result in query_results:
-        for student in result['result']:
-            notifications[student['student_address']] = {
-                'sent': datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M'),
-                'viewed': '',
-                'responded': '',
-                'accepted': False,
-                'attended': False
-            }
-    return notifications
-
-def _compute_ratios(results):
-    updated_results = []
-    for result in results:
-        responses = result.get('query').get('responses')
-        viewed = responded = accepted = attended = 0
-        for _, value in responses.items():
-            if value['viewed']:
-                viewed += 1
-            if value['responded']:
-                responded += 1
-            if value['accepted']:
-                accepted += 1
-            if value['attended']:
-                attended += 1
-        result['query']['metrics'] = {
-            'viewed': viewed, 
-            'responded': responded, 
-            'accepted': accepted, 
-            'attended': attended
-            }
-        updated_results.append(result)
-    return updated_results
-
-def _set_status(body, result):
-    student_record = result.get('query').get('responses').get(body.get('student_address'))
-    if 'viewed' in body:
-        student_record['viewed'] = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M')
-    elif 'accepted' in body:
-        student_record['responded'] = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M')
-        student_record['accepted'] = body.get('accepted')
-    return student_record
-
-def _add_infos(body, result):
-    student_record = result.get('query').get('responses').get(body.get('student_address'))
-    student_record['attended'] = True
-    student_record['student_info'] = {
-        'student_id': body.get('student_id'),
-        'first_name': body.get('first_name'),
-        'last_name': body.get('last_name')
-    }
-    return student_record
-
-def _update_event_details(body, result):
-    event = result.get('event')
-    for key, value in body.items():
-        event[key] = value
-    return event
-
-def _build_student_result(student_address, results):
-    student_results = []
-    for result in results:
-        student_result = {
-            '_id': str(result.get('_id')),
-            'customer_id': result.get('customer_id'),
-            'event': result.get('event'),
-            'response': result.get('query').get('responses').get(student_address),
-            'timestamp': result.get('query').get('timestamp'),
-            'qr': json.dumps({'query_id': str(result.get('_id')), 'student_address': student_address})
-        }
-        student_results.append(student_result)
-    return student_results
-
-def _stringify_object_id(result):
-    stringified_result = []
-    for element in result:
-        element['_id'] = str(element['_id'])
-        stringified_result.append(element)
-    return stringified_result
