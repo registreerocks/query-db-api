@@ -121,6 +121,27 @@ paths:
           description: Authentication error
         '409':
           description: Conflict
+  /query/get_info_by_customer:
+    get:
+      tags:
+        - query
+      summary: retrieve query infos by customer id
+      description: ''
+      operationId: swagger_server.controllers.query_db_functions.get_query_infos_by_customer
+      parameters:
+        - in: query
+          name: customer_id
+          description: customer id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Authentication error
+        '409':
+          description: Conflict
   /query/get_by_student:
     get:
       tags:
