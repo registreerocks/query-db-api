@@ -57,8 +57,8 @@ def _get_query(id):
     result = query_details.find_one({'_id': ObjectId(id)})
     if result:
         result['_id'] = str(result['_id'])
-        metrics_result = _compute_ratios([result])[0]
-        return metrics_result
+        result['query']['metrics'] = _compute_ratios(result.get('query').get('responses'))
+        return result
     else:
         return {'ERROR': 'No matching data found.'}, 409
 

@@ -75,7 +75,7 @@ def get_queries_by_customer(customer_id):
 def get_query_infos_by_customer(customer_id):
     results = query_details.find({'customer_id': customer_id})
     if results:
-        _stringify_object_id(_build_registree_result(results))
+        return _stringify_object_id(_build_registree_result(results))
     else:
         return {'ERROR': 'No matching data found.'}, 409
 
