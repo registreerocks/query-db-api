@@ -77,7 +77,7 @@ jobs:
       - run:
           name: Deploy app to Demo Server via Docker
           command: |
-            ssh -o StrictHostKeyChecking=no root@161.35.25.77 "/bin/bash ./RegistreeUpdate.sh"
+            ssh -o StrictHostKeyChecking=no root@161.35.25.77 "/bin/bash ./backend-demo/RegistreeUpdate.sh"
 
 workflows:
   version: 2
