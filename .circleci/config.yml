@@ -70,6 +70,15 @@ jobs:
             docker push registree/$IMAGE_NAME:$TAG
             docker push registree/$IMAGE_NAME:latest
 
+  deploy-prod:
+    docker:
+      - image: circleci/python:3.7.5
+    steps:
+      - run:
+          name: Deploy app to Demo Server via Docker
+          command: |
+            ssh -o StrictHostKeyChecking=no root@161.35.25.77 "/bin/bash ./backend-demo/RegistreeUpdate.sh"
+
 workflows:
   version: 2
   build-deploy:
@@ -85,6 +94,14 @@ workflows:
             branches:
               only: dev
       - build-prod:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^[0-9].*/
+      - deploy-prod:
+          requires:
+            - build-prod
           filters:
             branches:
               ignore: /.*/

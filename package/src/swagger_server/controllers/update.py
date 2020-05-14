@@ -50,5 +50,5 @@ def _set_status(body, result):
 def _update_event_details(body, result):
     event = result.get('event')
     for key, value in body.items():
-        event[key] = value
+        if value: event[key] = value
     return event

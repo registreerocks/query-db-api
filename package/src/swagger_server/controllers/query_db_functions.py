@@ -6,7 +6,7 @@ from registree_auth import get_token_auth_header, requires_auth, requires_scope
 
 from .create import _add_responses, _query_degree
 from .db import query_details
-from .get import _build_student_result, _compute_ratios, _get_query, _get_rsvp
+from .get import _build_student_result, _build_customer_result, _build_registree_result, _get_query, _get_rsvp
 from .helpers import _stringify_object_id, check_id
 from .update import (_add_infos, _expand_add_responses, _expand_query_degree,
                      _notify_students, _set_status, _update_event_details)
@@ -62,12 +62,20 @@ def get_query(id):
     return _get_query(id)
 
 @requires_auth
-@requires_scope('recruiter', 'registree')
+@requires_scope('recruiter')
 def get_queries_by_customer(customer_id):
-    result = query_details.find({'customer_id': customer_id})
-    if result:
-        metrics_result = _compute_ratios(result)
-        return _stringify_object_id(metrics_result)
+    results = query_details.find({'customer_id': customer_id})
+    if results:
+        return _stringify_object_id(_build_customer_result(results))
+    else:
+        return {'ERROR': 'No matching data found.'}, 409
+
+@requires_auth
+@requires_scope('registree')
+def get_query_infos_by_customer(customer_id):
+    results = query_details.find({'customer_id': customer_id})
+    if results:
+        return _stringify_object_id(_build_registree_result(results))
     else:
         return {'ERROR': 'No matching data found.'}, 409
 
@@ -113,7 +121,7 @@ def query_degree(body):
         return {'ERROR': str(e)}, 500
 
 @requires_auth
-@requires_scope('recruiter')
+@requires_scope('recruiter', 'registree')
 @check_id
 def update(id, body):
     result = query_details.find_one({'_id': ObjectId(id)})
