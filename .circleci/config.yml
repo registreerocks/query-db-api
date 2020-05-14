@@ -86,13 +86,13 @@ workflows:
       - build:
           filters:
             branches:
-              only: dev
+              only: staging
       - deploy-stage:
           requires:
             - build
           filters:
             branches:
-              only: dev
+              only: staging
       - build-prod:
           filters:
             branches:
