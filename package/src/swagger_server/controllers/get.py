@@ -16,7 +16,7 @@ def _build_registree_result(results):
     for result in results:
         result['query']['metrics'] = _compute_ratios(result.get('query').get('responses'))
         result['query'].pop('results')
-        result['query'].pop('responses')
+        # result['query'].pop('responses')
         registree_results.append(result)
     return registree_results
 
