@@ -42,6 +42,29 @@ def test_build_registree_result():
                 'accepted': 0,
                 'attended': 0
             },
+            'responses': {
+                '0x379510a728aA9269607f7037FFcbDe4c6d539f47': {
+                    'accepted': False,
+                    'attended': False,
+                    'responded': '',
+                    'sent': '2019-03-14 04:03',
+                    'viewed': ''
+                },
+                '0x38b9118Fb0d7db10321eBffC694b946eF1CB37c5': {
+                    'accepted': False,
+                    'attended': False,
+                    'responded': '',
+                    'sent': '2019-03-14 04:03',
+                    'viewed': ''
+                },
+                '0xDFc14F1E02A00244593dB12f53910C231eEFECAd': {
+                    'accepted': False,
+                    'attended': False,
+                    'responded': '',
+                    'sent': '2019-03-14 04:03',
+                    'viewed': ''
+                }
+            },
             'timestamp': '2019-03-14 04:03'}
         }]
     assert(_build_registree_result(query_result) == expected_output)
