@@ -1,15 +1,16 @@
 import datetime
 
 from bson import ObjectId
-
 from registree_auth import get_token_auth_header, requires_auth, requires_scope
 
 from .create import _add_responses, _query_degree
 from .db import query_details
-from .get import _build_student_result, _build_customer_result, _build_registree_result, _get_query, _get_rsvp
+from .get import (_build_customer_result, _build_registree_result,
+                  _build_student_result, _get_query, _get_rsvp)
 from .helpers import _stringify_object_id, check_id
 from .update import (_add_infos, _expand_add_responses, _expand_query_degree,
                      _notify_students, _set_status, _update_event_details)
+from .webhook import _notify_registree
 
 
 @check_id
@@ -53,6 +54,7 @@ def expand_query_degree(id, body):
                 'query.timestamp': datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M')
                 }
             }, upsert=False)
+        _notify_registree("Expand", old_event.get('customer_id'), id)
         return _get_query(id)
 
 @requires_auth
@@ -116,7 +118,9 @@ def query_degree(body):
         query['responses'] = _add_responses(query['results'])
         query['timestamp'] = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M')
         body['query'] = query
-        return str(query_details.insert_one(body).inserted_id)
+        _id = str(query_details.insert_one(body).inserted_id)
+        _notify_registree("New", body.get('customer_id'), _id)
+        return _id
     except ValueError as e:
         return {'ERROR': str(e)}, 500
 
