@@ -38,5 +38,5 @@ def _query_degree(details):
     query_response = _query_bulk(query_list)
     query_results = {}
     for degree_id, response in query_response.items():
-        query_results = {**query_results, **{student_address: {**value, **{'degree_name': id_to_degree_name[degree_id]}} for student_address, value in response.items()}}
+        query_results = {**query_results, **{student_address: {**value, **{'degree_id': degree_id, 'degree_name': id_to_degree_name[degree_id]}} for student_address, value in response.items()}}
     return query_results

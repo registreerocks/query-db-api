@@ -116,37 +116,43 @@ def test_expand_query(query_result):
         "avg": 75.42233333333334,
         "complete": False,
         "timestamp": "2019-02-12 05:05",
-        "degree_name": "Fintech"
+        "degree_name": "Fintech",
+        "degree_id": "7c9a1789f207659f2a28ee16737946d6b4189cb507ddd0fedc92978acaba4dfa",
       },
       "0xDBEd414a980d757234Bfb2684999afB7aE799240": {
         "avg": 73.605,
         "complete": False,
         "timestamp": "2019-02-12 05:05",
-        "degree_name": "Fintech"
+        "degree_name": "Fintech",
+        "degree_id": "7c9a1789f207659f2a28ee16737946d6b4189cb507ddd0fedc92978acaba4dfa",
       },
       "0x857979Af25b959cDF1369df951a45DEb55f2904e": {
         "avg": 81,
         "complete": False,
         "timestamp": "2019-02-12 05:05",
-        "degree_name": "Statistics"
+        "degree_name": "Statistics",
+        "degree_id": "7c9a1789f207659f2a28ee16737946d6b4189cb507ddd0fedc92978acaba4dfb",
       },
       "0xDBEd414a980d757234Bfb2684999afB7aE799241": {
         "avg": 79,
         "complete": False,
         "timestamp": "2019-02-12 05:05",
-        "degree_name": "Statistics"
+        "degree_name": "Statistics",
+        "degree_id": "7c9a1789f207659f2a28ee16737946d6b4189cb507ddd0fedc92978acaba4dfb",
       },
       "0xDBEd414a980d757234Bfb2684999afB7aE799480": {
         "avg": 71,
         "complete": False,
         "timestamp": "2019-02-13 05:05",
-        "degree_name": "Fintech"
+        "degree_name": "Fintech",
+        "degree_id": "7c9a1789f207659f2a28ee16737946d6b4189cb507ddd0fedc92978acaba4dfa",
       },
       "0xDBEd414a980d757234Bfb2684999afB7aE799481": {
         "avg": 77,
         "complete": False,
         "timestamp": "2019-02-13 05:05",
-        "degree_name": "Statistics"
+        "degree_name": "Statistics",
+        "degree_id": "7c9a1789f207659f2a28ee16737946d6b4189cb507ddd0fedc92978acaba4dfb",
       }
     }, _get_long_query_result())
     assert(_expand_query_degree(details, _get_query_result()) == expected_output)
