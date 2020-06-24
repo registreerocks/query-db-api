@@ -379,6 +379,8 @@ components:
               type: string
             message:
               type: string
+            password:
+              type: string
             attachments:
               type: array
               items:
@@ -470,6 +472,8 @@ components:
         flyer:
           type: string
         message:
+          type: string
+        password:
           type: string
       xml:
         name: Update
