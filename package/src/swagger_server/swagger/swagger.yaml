@@ -214,6 +214,7 @@ paths:
               $ref: '#/components/schemas/UpdateStatus'
         description: student status update
         required: true
+  # kept for backwards compatibility
   /query/update/{id}:
     post:
       tags:
@@ -291,6 +292,65 @@ paths:
           required: true
           schema:
             type: string
+
+  /event/update_info/{id}:
+    put:
+      tags:
+        - event
+      summary: update event info (not attachments)
+      description: ''
+      operationId: swagger_server.controllers.query_db_functions.update_info
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Authentication error
+        '404':
+          description: Not found
+      parameters:
+        - name: id
+          in: path
+          description: ID of event to be updated
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Update'
+        description: update parameters
+        required: true
+
+  /event/update_attachments/{id}:
+    put:
+      tags:
+        - event
+      summary: update event attachments
+      description: ''
+      operationId: swagger_server.controllers.query_db_functions.update_attachments
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Authentication error
+        '404':
+          description: Not found
+      parameters:
+        - name: id
+          in: path
+          description: ID of event to be updated
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAttachments'
+        description: update parameters
+        required: true
+  
 servers:
   - url: 'http://localhost:8000'
 components:
@@ -319,6 +379,17 @@ components:
               type: string
             message:
               type: string
+            attachments:
+              type: array
+              items:
+                type: object
+                properties:
+                  id: 
+                    type: string
+                  mimetype: 
+                    type: string
+                  filename: 
+                    type: string
         query:
           type: object
           properties:
@@ -415,3 +486,16 @@ components:
           type: string
       xml:
         name: AddInfo
+    UpdateAttachments:
+      type: array
+      items:
+        type: object
+        properties:
+          id: 
+            type: string
+          mimetype: 
+            type: string
+          filename: 
+            type: string
+      xml:
+        name: UpdateAttachments

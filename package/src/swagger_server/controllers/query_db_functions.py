@@ -136,6 +136,29 @@ def update(id, body):
         query_details.update_one({'_id': ObjectId(id)}, {'$set': {'event': event}}, upsert=False)
         return _get_query(id)
 
+@requires_auth
+@requires_scope('recruiter', 'registree')
+@check_id
+def update_attachments(id, body):
+    result = query_details.find_one({'_id': ObjectId(id)})
+    if not result:
+        return {'ERROR': 'No matching data found.'}, 404
+    else:
+        query_details.update_one({'_id': ObjectId(id)}, {'$set': {'event.attachments': body}}, upsert=False)
+        return _get_query(id)
+
+@requires_auth
+@requires_scope('recruiter', 'registree')
+@check_id
+def update_info(id, body):
+    result = query_details.find_one({'_id': ObjectId(id)})
+    if not result:
+        return {'ERROR': 'No matching data found.'}, 404
+    else:
+        event = _update_event_details(body, result)
+        query_details.update_one({'_id': ObjectId(id)}, {'$set': {'event': event}}, upsert=False)
+        return _get_query(id)
+
 @check_id
 @requires_auth
 @requires_scope('student')
