@@ -379,7 +379,7 @@ components:
               type: string
             message:
               type: string
-            password:
+            call_password:
               type: string
             attachments:
               type: array
@@ -473,7 +473,7 @@ components:
           type: string
         message:
           type: string
-        password:
+        call_password:
           type: string
       xml:
         name: Update
