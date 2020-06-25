@@ -7,7 +7,7 @@ TEAMS_WEBHOOK = env.get('TEAMS_WEBHOOK')
 
 
 def _notify_registree(action, customer_id, query_id):
-  if ENVIRONMENT != 'local':
+  if (ENVIRONMENT != 'local') or (ENVIRONMENT != 'staging'):
     card = _create_card(action, customer_id, query_id)
     requests.post(TEAMS_WEBHOOK, json=card)
 
