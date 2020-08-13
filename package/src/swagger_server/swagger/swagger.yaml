@@ -379,7 +379,7 @@ components:
               type: string
             message:
               type: string
-            call_password:
+            password:
               type: string
             attachments:
               type: array
@@ -473,8 +473,19 @@ components:
           type: string
         message:
           type: string
-        call_password:
+        password:
           type: string
+        attachments:
+          type: array
+          items:
+            type: object
+            properties:
+              id: 
+                type: string
+              mimetype: 
+                type: string
+              filename: 
+                type: string
       xml:
         name: Update
     AddInfo:
