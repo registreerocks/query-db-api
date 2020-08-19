@@ -322,13 +322,13 @@ paths:
         description: update parameters
         required: true
 
-  /event/update_attachments/{id}:
+  /event/add_attachments/{id}:
     put:
       tags:
         - event
-      summary: update event attachments
+      summary: add event attachments
       description: ''
-      operationId: swagger_server.controllers.query_db_functions.update_attachments
+      operationId: swagger_server.controllers.query_db_functions.add_attachments
       responses:
         '200':
           description: OK
@@ -347,8 +347,37 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateAttachments'
-        description: update parameters
+              $ref: '#/components/schemas/AddAttachments'
+        description: list of new attachments
+        required: true
+
+  /event/delete_attachments/{id}:
+    put:
+      tags:
+        - event
+      summary: delete event attachments
+      description: ''
+      operationId: swagger_server.controllers.query_db_functions.delete_attachments
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Authentication error
+        '404':
+          description: Not found
+      parameters:
+        - name: id
+          in: path
+          description: ID of event to be updated
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteAttachments'
+        description: list of attachment ids to be deleted
         required: true
   
 servers:
@@ -501,7 +530,7 @@ components:
           type: string
       xml:
         name: AddInfo
-    UpdateAttachments:
+    AddAttachments:
       type: array
       items:
         type: object
@@ -513,4 +542,10 @@ components:
           filename: 
             type: string
       xml:
-        name: UpdateAttachments
+        name: AddAttachments
+    DeleteAttachments:
+      type: array
+      items:
+        type: string
+      xml:
+        name: AddAttachments

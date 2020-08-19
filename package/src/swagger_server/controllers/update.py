@@ -52,3 +52,9 @@ def _update_event_details(body, result):
     for key, value in body.items():
         if value: event[key] = value
     return event
+
+def _add_attachments(body, result):
+    return result.get('event').get('attachments') + body
+
+def _delete_attachments(body, result):
+    return [attachment for attachment in result.get('event').get('attachments') if attachment.get('id') not in body]
