@@ -163,6 +163,25 @@ paths:
           description: Authentication error
         '409':
           description: Conflict
+  /query/get_by_transcript_id:
+    get:
+      tags:
+        - query
+      summary: retrieve queries by student transcript id
+      description: ''
+      operationId: swagger_server.controllers.query_db_functions.get_by_transcript_id
+      parameters:
+        - in: query
+          name: transcript_id
+          description: transcript id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Authentication error
   /query/get_rsvp:
     get:
       tags:
