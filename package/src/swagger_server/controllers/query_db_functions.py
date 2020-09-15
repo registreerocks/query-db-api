@@ -92,7 +92,7 @@ def get_queries_by_student(student_address):
 @requires_scope('student')
 def get_queries_by_transcript_id(transcript_id):
     results = query_details.find({'query.results.' + transcript_id: {"$exists": True}})
-    return _build_customer_result(results)
+    return _stringify_object_id(_build_customer_result(results))
 
 @check_id
 @requires_auth
