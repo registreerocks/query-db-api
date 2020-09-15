@@ -169,7 +169,7 @@ paths:
         - query
       summary: retrieve queries by student transcript id
       description: ''
-      operationId: swagger_server.controllers.query_db_functions.get_by_transcript_id
+      operationId: swagger_server.controllers.query_db_functions.get_queries_by_transcript_id
       parameters:
         - in: query
           name: transcript_id
