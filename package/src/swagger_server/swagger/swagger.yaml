@@ -288,7 +288,7 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/AddInfo"
-        description: student address, first name, last name, id
+        description: student address, auth0 user id, student_number
         required: true
   /query/notify_students/{id}:
     post:
@@ -541,11 +541,9 @@ components:
       properties:
         student_address:
           type: string
-        fist_name:
+        user_id:
           type: string
-        last_name:
-          type: string
-        student_id:
+        student_number:
           type: string
       xml:
         name: AddInfo
