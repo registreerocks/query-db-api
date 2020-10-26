@@ -221,9 +221,8 @@ def test_set_status_attended_true():
     body = {
         "id": "12345",
         "student_address": "0xDBEd414a980d757234Bfb2684999afB7aE799240",
-        "student_id": "DOEJOH001",
-        "first_name": "John",
-        "last_name": "Doe"
+        "student_number": "DOEJOH001",
+        "user_id": "Safire|1234567890"
     }
     result = _get_event()
     expected_output = {
@@ -233,9 +232,8 @@ def test_set_status_attended_true():
         "accepted": True,
         "attended": True,
         "student_info": {
-            "student_id": "DOEJOH001",
-            "first_name": "John",
-            "last_name": "Doe"
+            "student_number": "DOEJOH001",
+            "user_id": "Safire|1234567890"
         }
     }
     assert(_add_infos(body, result) == expected_output)
