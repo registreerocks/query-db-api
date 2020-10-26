@@ -7,9 +7,8 @@ def _add_infos(body, result):
     student_record = result.get('query').get('responses').get(body.get('student_address'))
     student_record['attended'] = True
     student_record['student_info'] = {
-        'student_id': body.get('student_id'),
-        'first_name': body.get('first_name'),
-        'last_name': body.get('last_name')
+        'student_number': body.get('student_number'),
+        'user_id': body.get('user_id')
     }
     return student_record
 
