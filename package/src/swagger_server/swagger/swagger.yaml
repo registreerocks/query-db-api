@@ -419,8 +419,10 @@ components:
               type: string
             start_date:
               type: string
+              format: date-time
             end_date:
               type: string
+              format: date-time
             info:
               type: string
             flyer:
@@ -513,8 +515,10 @@ components:
           type: string
         start_date:
           type: string
+          format: date-time
         end_date:
           type: string
+          format: date-time
         info:
           type: string
         flyer:
