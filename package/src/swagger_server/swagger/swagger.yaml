@@ -7,6 +7,17 @@ tags:
   - name: Query DB
     description: ""
 paths:
+  /health:
+    get:
+      tags:
+        - health
+      summary: health endpoint
+      operationId: swagger_server.controllers.query_db_functions.health_check
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: Internal error
   /query/degree:
     post:
       tags:
