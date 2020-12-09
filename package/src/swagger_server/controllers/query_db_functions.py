@@ -12,6 +12,7 @@ from .update import (_add_attachments, _add_infos, _delete_attachments,
                      _expand_add_responses, _expand_query_degree,
                      _notify_students, _set_status, _update_event_details)
 from .webhook import _notify_registree
+from .health import _health_check
 
 
 @check_id
@@ -190,3 +191,6 @@ def update_status(id, body):
         student_record = _set_status(body, result)
         query_details.update_one({'_id': ObjectId(id)}, {'$set': {'query.responses.' + body.get('student_address'): student_record}}, upsert=False)
         return id
+
+def health_check():
+    return _health_check()
