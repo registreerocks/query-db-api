@@ -24,7 +24,7 @@ def _health_check():
                     "status": "up"
                 }
             }
-        }
+        }, 200
     except pymongo.errors.ServerSelectionTimeoutError as err:
         return {
             "status": "error",
@@ -39,4 +39,4 @@ def _health_check():
                     "status": "down"
                 }
             }
-        }
+        }, 503

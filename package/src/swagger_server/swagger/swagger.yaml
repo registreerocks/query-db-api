@@ -18,6 +18,8 @@ paths:
           description: OK
         "500":
           description: Internal error
+        "503":
+          description: Mongo service unavailable
   /query/degree:
     post:
       tags:
