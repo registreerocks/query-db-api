@@ -41,7 +41,7 @@ def _set_status(body, result):
     student_record = result.get('query').get('responses').get(body.get('student_address'))
     if 'viewed' in body:
         student_record['viewed'] = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M')
-    elif 'accepted' in body:
+    if 'accepted' in body:
         student_record['responded'] = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M')
         student_record['accepted'] = body.get('accepted')
     return student_record
