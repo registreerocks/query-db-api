@@ -1,31 +1,44 @@
 openapi: 3.0.0
 info:
-  description: ''
-  version: 1.4.0
+  description: ""
+  version: 1.5.0
   title: Query DB
 tags:
   - name: Query DB
-    description: ''
+    description: ""
 paths:
+  /health:
+    get:
+      tags:
+        - health
+      summary: health endpoint
+      operationId: swagger_server.controllers.query_db_functions.health_check
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: Internal error
+        "503":
+          description: Mongo service unavailable
   /query/degree:
     post:
       tags:
         - query
       summary: make and store a new query
-      description: ''
+      description: ""
       operationId: swagger_server.controllers.query_db_functions.query_degree
       responses:
-        '200':
+        "200":
           description: OK
-        '401':
+        "401":
           description: Authentication error
-        '500':
+        "500":
           description: Internal error
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/QueryDegree'
+              $ref: "#/components/schemas/QueryDegree"
         description: query object
         required: true
   /dry_run/degree:
@@ -33,20 +46,20 @@ paths:
       tags:
         - query
       summary: get number of students in query
-      description: ''
+      description: ""
       operationId: swagger_server.controllers.query_db_functions.dry_run_degree
       responses:
-        '200':
+        "200":
           description: OK
-        '401':
+        "401":
           description: Authentication error
-        '500':
+        "500":
           description: Internal error
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/QueryDegree'
+              $ref: "#/components/schemas/QueryDegree"
         description: query object
         required: true
   /expand/degree/{id}:
@@ -54,14 +67,14 @@ paths:
       tags:
         - query
       summary: expand a query
-      description: ''
+      description: ""
       operationId: swagger_server.controllers.query_db_functions.expand_query_degree
       responses:
-        '200':
+        "200":
           description: OK
-        '401':
+        "401":
           description: Authentication error
-        '500':
+        "500":
           description: Internal error
       parameters:
         - name: id
@@ -74,7 +87,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/QueryExpandDegree'
+              $ref: "#/components/schemas/QueryExpandDegree"
         description: query object
         required: true
   /query/get:
@@ -82,7 +95,7 @@ paths:
       tags:
         - query
       summary: retrieve query
-      description: ''
+      description: ""
       operationId: swagger_server.controllers.query_db_functions.get_query
       parameters:
         - in: query
@@ -92,20 +105,20 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
-        '400':
+        "400":
           description: Invalid input
-        '401':
+        "401":
           description: Authentication error
-        '409':
+        "409":
           description: Conflict
   /query/get_by_customer:
     get:
       tags:
         - query
       summary: retrieve queries by customer
-      description: ''
+      description: ""
       operationId: swagger_server.controllers.query_db_functions.get_queries_by_customer
       parameters:
         - in: query
@@ -115,18 +128,18 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
-        '401':
+        "401":
           description: Authentication error
-        '409':
+        "409":
           description: Conflict
   /query/get_info_by_customer:
     get:
       tags:
         - query
       summary: retrieve query infos by customer id
-      description: ''
+      description: ""
       operationId: swagger_server.controllers.query_db_functions.get_query_infos_by_customer
       parameters:
         - in: query
@@ -136,18 +149,18 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
-        '401':
+        "401":
           description: Authentication error
-        '409':
+        "409":
           description: Conflict
   /query/get_by_student:
     get:
       tags:
         - query
       summary: retrieve queries by student
-      description: ''
+      description: ""
       operationId: swagger_server.controllers.query_db_functions.get_queries_by_student
       parameters:
         - in: query
@@ -157,18 +170,37 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
-        '401':
+        "401":
           description: Authentication error
-        '409':
+        "409":
           description: Conflict
+  /query/get_by_transcript_id:
+    get:
+      tags:
+        - query
+      summary: retrieve queries by student transcript id
+      description: ""
+      operationId: swagger_server.controllers.query_db_functions.get_queries_by_transcript_id
+      parameters:
+        - in: query
+          name: transcript_id
+          description: transcript id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Authentication error
   /query/get_rsvp:
     get:
       tags:
         - query
       summary: retrieve number of rsvp's of a query
-      description: ''
+      description: ""
       operationId: swagger_server.controllers.query_db_functions.get_rsvp
       parameters:
         - in: query
@@ -178,27 +210,27 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
-        '400':
+        "400":
           description: Invalid input
-        '401':
+        "401":
           description: Authentication error
-        '409':
+        "409":
           description: Conflict
   /query/update_status/{id}:
     post:
       tags:
         - query
       summary: update response status by student
-      description: ''
+      description: ""
       operationId: swagger_server.controllers.query_db_functions.update_status
       responses:
-        '200':
+        "200":
           description: OK
-        '401':
+        "401":
           description: Authentication error
-        '409':
+        "409":
           description: Conflict
       parameters:
         - name: id
@@ -211,22 +243,23 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateStatus'
+              $ref: "#/components/schemas/UpdateStatus"
         description: student status update
         required: true
+  # kept for backwards compatibility
   /query/update/{id}:
     post:
       tags:
         - query
       summary: update event details
-      description: ''
+      description: ""
       operationId: swagger_server.controllers.query_db_functions.update
       responses:
-        '200':
+        "200":
           description: OK
-        '401':
+        "401":
           description: Authentication error
-        '409':
+        "409":
           description: Conflict
       parameters:
         - name: id
@@ -239,7 +272,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Update'
+              $ref: "#/components/schemas/Update"
         description: update parameters
         required: true
   /query/add_student_attendance/{id}:
@@ -247,14 +280,14 @@ paths:
       tags:
         - query
       summary: add student information on event attendance
-      description: ''
+      description: ""
       operationId: swagger_server.controllers.query_db_functions.add_student_attendance
       responses:
-        '200':
+        "200":
           description: OK
-        '401':
+        "401":
           description: Authentication error
-        '409':
+        "409":
           description: Conflict
       parameters:
         - name: id
@@ -267,22 +300,22 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AddInfo'
-        description: student address, first name, last name, id
+              $ref: "#/components/schemas/AddInfo"
+        description: student address, auth0 user id, student_number
         required: true
   /query/notify_students/{id}:
     post:
       tags:
         - query
       summary: set students' notification status to "sent", return student ids
-      description: ''
+      description: ""
       operationId: swagger_server.controllers.query_db_functions.notify_students
       responses:
-        '200':
+        "200":
           description: OK
-        '401':
+        "401":
           description: Authentication error
-        '409':
+        "409":
           description: Conflict
       parameters:
         - name: id
@@ -291,8 +324,96 @@ paths:
           required: true
           schema:
             type: string
+
+  /event/update_info/{id}:
+    put:
+      tags:
+        - event
+      summary: update event info (not attachments)
+      description: ""
+      operationId: swagger_server.controllers.query_db_functions.update_info
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Authentication error
+        "404":
+          description: Not found
+      parameters:
+        - name: id
+          in: path
+          description: ID of event to be updated
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Update"
+        description: update parameters
+        required: true
+
+  /event/add_attachments/{id}:
+    put:
+      tags:
+        - event
+      summary: add event attachments
+      description: ""
+      operationId: swagger_server.controllers.query_db_functions.add_attachments
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Authentication error
+        "404":
+          description: Not found
+      parameters:
+        - name: id
+          in: path
+          description: ID of event to be updated
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddAttachments"
+        description: list of new attachments
+        required: true
+
+  /event/delete_attachments/{id}:
+    put:
+      tags:
+        - event
+      summary: delete event attachments
+      description: ""
+      operationId: swagger_server.controllers.query_db_functions.delete_attachments
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Authentication error
+        "404":
+          description: Not found
+      parameters:
+        - name: id
+          in: path
+          description: ID of event to be updated
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeleteAttachments"
+        description: list of attachment ids to be deleted
+        required: true
+
 servers:
-  - url: 'http://localhost:8000'
+  - url: "http://localhost:8000"
 components:
   schemas:
     QueryDegree:
@@ -311,14 +432,29 @@ components:
               type: string
             start_date:
               type: string
+              format: date-time
             end_date:
               type: string
+              format: date-time
             info:
               type: string
             flyer:
               type: string
             message:
               type: string
+            password:
+              type: string
+            attachments:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  mimetype:
+                    type: string
+                  filename:
+                    type: string
         query:
           type: object
           properties:
@@ -327,13 +463,13 @@ components:
               items:
                 type: object
                 properties:
-                  university_id: 
+                  university_id:
                     type: string
-                  university_name: 
+                  university_name:
                     type: string
-                  faculty_id: 
+                  faculty_id:
                     type: string
-                  faculty_name: 
+                  faculty_name:
                     type: string
                   degree_id:
                     type: string
@@ -350,13 +486,13 @@ components:
       items:
         type: object
         properties:
-          university_id: 
+          university_id:
             type: string
-          university_name: 
+          university_name:
             type: string
-          faculty_id: 
+          faculty_id:
             type: string
-          faculty_name: 
+          faculty_name:
             type: string
           degree_id:
             type: string
@@ -392,14 +528,29 @@ components:
           type: string
         start_date:
           type: string
+          format: date-time
         end_date:
           type: string
+          format: date-time
         info:
           type: string
         flyer:
           type: string
         message:
           type: string
+        password:
+          type: string
+        attachments:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              mimetype:
+                type: string
+              filename:
+                type: string
       xml:
         name: Update
     AddInfo:
@@ -407,11 +558,28 @@ components:
       properties:
         student_address:
           type: string
-        fist_name:
+        user_id:
           type: string
-        last_name:
-          type: string
-        student_id:
+        student_number:
           type: string
       xml:
         name: AddInfo
+    AddAttachments:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: string
+          mimetype:
+            type: string
+          filename:
+            type: string
+      xml:
+        name: AddAttachments
+    DeleteAttachments:
+      type: array
+      items:
+        type: string
+      xml:
+        name: AddAttachments

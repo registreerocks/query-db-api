@@ -8,9 +8,11 @@ from .db import query_details
 from .get import (_build_customer_result, _build_registree_result,
                   _build_student_result, _get_query, _get_rsvp)
 from .helpers import _stringify_object_id, check_id
-from .update import (_add_infos, _expand_add_responses, _expand_query_degree,
+from .update import (_add_attachments, _add_infos, _delete_attachments,
+                     _expand_add_responses, _expand_query_degree,
                      _notify_students, _set_status, _update_event_details)
 from .webhook import _notify_registree
+from .health import _health_check
 
 
 @check_id
@@ -87,6 +89,12 @@ def get_queries_by_student(student_address):
     results = query_details.find({'query.results.' + student_address: {"$exists": True}})
     return _build_student_result(student_address, results)
 
+@requires_auth
+@requires_scope('student')
+def get_queries_by_transcript_id(transcript_id):
+    results = query_details.find({'query.results.' + transcript_id: {"$exists": True}})
+    return _stringify_object_id(_build_customer_result(results))
+
 @check_id
 @requires_auth
 @requires_scope('registree')
@@ -136,6 +144,42 @@ def update(id, body):
         query_details.update_one({'_id': ObjectId(id)}, {'$set': {'event': event}}, upsert=False)
         return _get_query(id)
 
+@requires_auth
+@requires_scope('recruiter', 'registree')
+@check_id
+def add_attachments(id, body):
+    result = query_details.find_one({'_id': ObjectId(id)})
+    if not result:
+        return {'ERROR': 'No matching data found.'}, 404
+    else:
+        attachments = _add_attachments(body, result)
+        query_details.update_one({'_id': ObjectId(id)}, {'$set': {'event.attachments': attachments}}, upsert=False)
+        return _get_query(id)
+
+@requires_auth
+@requires_scope('recruiter', 'registree')
+@check_id
+def delete_attachments(id, body):
+    result = query_details.find_one({'_id': ObjectId(id)})
+    if not result:
+        return {'ERROR': 'No matching data found.'}, 404
+    else:
+        attachments = _delete_attachments(body, result)
+        query_details.update_one({'_id': ObjectId(id)}, {'$set': {'event.attachments': attachments}}, upsert=False)
+        return _get_query(id)
+
+@requires_auth
+@requires_scope('recruiter', 'registree')
+@check_id
+def update_info(id, body):
+    result = query_details.find_one({'_id': ObjectId(id)})
+    if not result:
+        return {'ERROR': 'No matching data found.'}, 404
+    else:
+        event = _update_event_details(body, result)
+        query_details.update_one({'_id': ObjectId(id)}, {'$set': {'event': event}}, upsert=False)
+        return _get_query(id)
+
 @check_id
 @requires_auth
 @requires_scope('student')
@@ -147,3 +191,6 @@ def update_status(id, body):
         student_record = _set_status(body, result)
         query_details.update_one({'_id': ObjectId(id)}, {'$set': {'query.responses.' + body.get('student_address'): student_record}}, upsert=False)
         return id
+
+def health_check():
+    return _health_check()

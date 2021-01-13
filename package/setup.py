@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
    name='query_db',
-   version='1.4.0',
+   version='1.5.0',
    maintainer='Sabine Bertram',
    maintainer_email='sabine.bertram@mailbox.org',
    package_dir={'': 'src'},

@@ -7,9 +7,8 @@ def _add_infos(body, result):
     student_record = result.get('query').get('responses').get(body.get('student_address'))
     student_record['attended'] = True
     student_record['student_info'] = {
-        'student_id': body.get('student_id'),
-        'first_name': body.get('first_name'),
-        'last_name': body.get('last_name')
+        'student_number': body.get('student_number'),
+        'user_id': body.get('user_id')
     }
     return student_record
 
@@ -42,7 +41,7 @@ def _set_status(body, result):
     student_record = result.get('query').get('responses').get(body.get('student_address'))
     if 'viewed' in body:
         student_record['viewed'] = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M')
-    elif 'accepted' in body:
+    if 'accepted' in body:
         student_record['responded'] = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M')
         student_record['accepted'] = body.get('accepted')
     return student_record
@@ -52,3 +51,9 @@ def _update_event_details(body, result):
     for key, value in body.items():
         if value: event[key] = value
     return event
+
+def _add_attachments(body, result):
+    return result.get('event').get('attachments') + body
+
+def _delete_attachments(body, result):
+    return [attachment for attachment in result.get('event').get('attachments') if attachment.get('id') not in body]
