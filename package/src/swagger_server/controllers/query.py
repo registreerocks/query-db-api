@@ -23,6 +23,11 @@ def _get_top_x_percent(x, _type, _id):
     reduced_list = _x_percent(x, averages)
     return dict((item.pop('student_address'), item.copy()) for item in reduced_list)
 
+def _get_all_above_average(average, _type, _id):
+    averages = _retrieve_averages(_type, _id)
+    reduced_list = [a for a in averages if a['avg'] >= average]
+    return dict((item.pop('student_address'), item.copy()) for item in reduced_list)
+
 def _retrieve_averages(_type, _id):
     files = list(MDBC.find({'asset.data.asset_type': _type + '_average', 'asset.data.' + _type + '_id': _id}))
     return _sort_averages(files)

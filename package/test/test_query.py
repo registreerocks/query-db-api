@@ -4,7 +4,7 @@ import pymongo
 from bson.objectid import ObjectId
 import random
 
-from src.swagger_server.controllers.query import _get_top_x, _get_top_x_percent, _query_bulk
+from src.swagger_server.controllers.query import _get_top_x, _get_top_x_percent, _query_bulk, _get_all_above_average
 
 
 @mock.patch('pymongo.collection.Collection.find')
@@ -29,6 +29,19 @@ def test_get_top_x_percent(mock_mongo_find):
   output = _get_top_x_percent(50, 'course', '5d7a4090b61d9af587ffa1b4')
   assert(len(list(set(list(output.keys())))) == 10)
   assert(_get_top_x_percent(10, 'course', '5d7a4090b61d9af587ffa1b4') == _get_query_result())
+
+
+@mock.patch('pymongo.collection.Collection.find')
+def test_get_all_above_average(mock_mongo_find):
+  random.seed(0)
+  mock_mongo_find.return_value = get_course_average_blob()
+  assert(len(_get_all_above_average(50, 'course', '5d7a4090b61d9af587ffa1b4')) == 10)
+  assert(len(_get_all_above_average(70, 'course', '5d7a4090b61d9af587ffa1b4')) == 6)
+  assert(len(_get_all_above_average(90, 'course', '5d7a4090b61d9af587ffa1b4')) == 2)
+  assert(len(_get_all_above_average(100, 'course', '5d7a4090b61d9af587ffa1b4')) == 0)
+  assert(len(_get_all_above_average(0, 'course', '5d7a4090b61d9af587ffa1b4')) == 20)
+  assert(_get_all_above_average(90, 'course', '5d7a4090b61d9af587ffa1b4') == _get_query_result())
+
 
 @mock.patch('pymongo.collection.Collection.find')
 def test_bulk_query(mock_mongo_find):
