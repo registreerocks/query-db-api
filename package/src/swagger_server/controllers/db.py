@@ -10,3 +10,4 @@ CLIENT = MongoClient(
 DB = CLIENT.database
 query_details = DB.query_db
 student_details =  DB.student_db
+identifying_db = DB.identifying_db
