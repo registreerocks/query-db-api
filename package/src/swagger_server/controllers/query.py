@@ -7,6 +7,8 @@ def _query_bulk(query_list):
     for item in query_list:
         if item.get('absolute'):
             responses[item.get('type_id')] = _get_top_x(item.get('x'), item.get('type'), item.get('type_id'))
+        elif item.get('average'):
+            responses[item.get('type_id')] = _get_all_above_average(item.get('x'), _item.get('type'), item.get('type_id'))
         else:
             responses[item.get('type_id')] = _get_top_x_percent(item.get('x'), item.get('type'), item.get('type_id'))
     return responses
