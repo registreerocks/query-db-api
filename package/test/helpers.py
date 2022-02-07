@@ -236,7 +236,6 @@ def _get_aggregate():
                 "first_name" : "Maya",
                 "last_name" : "Flores",
                 "race": "Black",
-                "gender":  "Other"
             }
         ]
     },

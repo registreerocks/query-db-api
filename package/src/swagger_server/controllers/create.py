@@ -91,4 +91,4 @@ def _filter_by_gender(student_details, genders):
 
 def _filter_details_by_demographic(student_details, demographics, demographic_type):
     return [student for student in student_details if student['ident'][0]
-            .get(demographic_type) in demographics]
+            .get(demographic_type, "Other") in demographics]
