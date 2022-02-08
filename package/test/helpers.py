@@ -110,6 +110,24 @@ def _get_query_result():
       }
     }
 
+def _get_demographic_query_result():
+    return {
+      "0x857979Af25b959cDF1369df951a45DEb55f2904d": {
+        "avg": 75.42233333333334,
+        "complete": False,
+        "timestamp": "2019-02-12 05:05",
+        "degree_name": "Fintech",
+        "degree_id": "7c9a1789f207659f2a28ee16737946d6b4189cb507ddd0fedc92978acaba4dfa"
+      },
+      "0xDBEd414a980d757234Bfb2684999afB7aE799241": {
+        "avg": 79,
+        "complete": False,
+        "timestamp": "2019-02-12 05:05",
+        "degree_name": "Statistics",
+        "degree_id": "7c9a1789f207659f2a28ee16737946d6b4189cb507ddd0fedc92978acaba4dfb"
+      }
+    }
+
 def _get_long_query_result():
     return {
       "0x857979Af25b959cDF1369df951a45DEb55f2904d": {
@@ -190,6 +208,67 @@ def _get_event_details():
             "message": "Hello World!"
         }
     }
+
+def _get_aggregate():
+    return [{
+        "_id" :"0xDBEd414a980d757234Bfb2684999afB7aE799240",
+        "ident_id" : "928f2afd10aedfd8b1d1d21156fb58ccd98bebe3e9fb8b711bc93b3e22444275",
+        "ident_url" : "http://localhost:8001",
+        "ident" : [ 
+            {
+                "_id" : "928f2afd10aedfd8b1d1d21156fb58ccd98bebe3e9fb8b711bc93b3e22444275",
+                "student_id" : "57BB8CF0E1911C",
+                "first_name" : "Nolan",
+                "last_name" : "Harris",
+                "race": "Other",
+                "gender": "Male"
+            }
+        ]
+    },
+    {
+        "_id" : "0x857979Af25b959cDF1369df951a45DEb55f2904d",
+        "ident_id" : "d3b1808858916a15105c0edfae13de977f06b6b7a9d5ba30cc745d26bb40fc1a",
+        "ident_url" : "http://localhost:8001",
+        "ident" : [ 
+            {
+                "_id" : "d3b1808858916a15105c0edfae13de977f06b6b7a9d5ba30cc745d26bb40fc1a",
+                "student_id" : "B202F83976CB22",
+                "first_name" : "Maya",
+                "last_name" : "Flores",
+                "race": "Black",
+            }
+        ]
+    },
+    {
+        "_id" :"0x857979Af25b959cDF1369df951a45DEb55f2904e",
+        "ident_id" : "58189273653d0ac5115490331767dc511bed14568751875f64fdbd9aec269f0f",
+        "ident_url" : "http://localhost:8001",
+        "ident" : [ 
+            {
+                "_id" : "58189273653d0ac5115490331767dc511bed14568751875f64fdbd9aec269f0f",
+                "student_id" : "49904805876D83",
+                "first_name" : "Josiah",
+                "last_name" : "Roberts",
+                "race": "White",
+                "gender": "Female"
+            }
+        ]
+    },
+    {
+        "_id" :"0xDBEd414a980d757234Bfb2684999afB7aE799241",
+        "ident_id" : "c39c5c7444fa0477505ecf695aaf8778b53db4a34e01fdcc7cb635d03568dbce",
+        "ident_url" : "http://localhost:8001",
+        "ident" : [ 
+            {
+                "_id" : "c39c5c7444fa0477505ecf695aaf8778b53db4a34e01fdcc7cb635d03568dbce",
+                "student_id" : "35C9D75CDFAB30",
+                "first_name" : "Kinsley",
+                "last_name" : "Morales",
+                "race": "Indian",
+                "gender": "Female"
+            }
+        ]
+    }]
 
 def _get_query():
     return [{'_id': '5c89d28c42b09700010413f2',
