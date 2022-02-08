@@ -4,6 +4,8 @@ from bson import ObjectId
 
 from .db import query_details
 
+from .helpers import _get_student_details
+
 def _build_customer_result(results):
     customer_results = []
     for result in results:
@@ -65,3 +67,10 @@ def _get_query(id):
 def _get_rsvp(result):
     accepted = [v for v in result['query']['responses'].values() if v['accepted'] == True]
     return len(accepted)
+
+def _get_cell(id):
+    event_query = _get_query(id)
+    addresses = event_query["query"]["responses"].keys()
+    student_details = _get_student_details(addresses)
+    return [student["ident"][0].get("cell") for student in student_details if student["ident"][0].get("cell") != None]
+

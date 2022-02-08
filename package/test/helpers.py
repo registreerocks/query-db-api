@@ -315,3 +315,52 @@ def _get_query():
                 'attended': False}},
             'timestamp': '2019-03-14 04:03'}
         }]
+
+def _get_student_details_cell():
+    return [{
+        "_id" :"0x38b9118Fb0d7db10321eBffC694b946eF1CB37c5",
+        "ident_id" : "928f2afd10aedfd8b1d1d21156fb58ccd98bebe3e9fb8b711bc93b3e22444275",
+        "ident_url" : "http://localhost:8001",
+        "ident" : [
+            {
+                "_id" : "928f2afd10aedfd8b1d1d21156fb58ccd98bebe3e9fb8b711bc93b3e22444275",
+                "student_id" : "57BB8CF0E1911C",
+                "first_name" : "Nolan",
+                "last_name" : "Harris",
+                "race": "Other",
+                "gender": "Male"
+            }
+        ]
+    },
+    {
+        "_id" :"0x379510a728aA9269607f7037FFcbDe4c6d539f47",
+        "ident_id" : "58189273653d0ac5115490331767dc511bed14568751875f64fdbd9aec269f0f",
+        "ident_url" : "http://localhost:8001",
+        "ident" : [
+            {
+                "_id" : "58189273653d0ac5115490331767dc511bed14568751875f64fdbd9aec269f0f",
+                "student_id" : "49904805876D83",
+                "first_name" : "Josiah",
+                "last_name" : "Roberts",
+                "race": "White",
+                "gender": "Female",
+                "cell": "0123456788"
+            }
+        ]
+    },
+    {
+        "_id" :"0xDFc14F1E02A00244593dB12f53910C231eEFECAd",
+        "ident_id" : "c39c5c7444fa0477505ecf695aaf8778b53db4a34e01fdcc7cb635d03568dbce",
+        "ident_url" : "http://localhost:8001",
+        "ident" : [
+            {
+                "_id" : "c39c5c7444fa0477505ecf695aaf8778b53db4a34e01fdcc7cb635d03568dbce",
+                "student_id" : "35C9D75CDFAB30",
+                "first_name" : "Kinsley",
+                "last_name" : "Morales",
+                "race": "Indian",
+                "gender": "Female",
+                "cell": "0123456789"
+            }
+        ]
+    }]
