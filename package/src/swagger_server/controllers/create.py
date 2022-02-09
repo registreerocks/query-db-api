@@ -5,7 +5,6 @@ from os import environ as env
 import requests
 
 from .query import _query_bulk
-from .db import identifying_db as IDB
 from .helpers import _get_student_details
 
 
@@ -29,8 +28,9 @@ def _build_query(_type, details):
         query_list.append({
             'type': _type,
             'type_id': type_id,
-            'x': item.get('absolute', 0) | item.get('percentage', 0),
-            'absolute': True if item.get('absolute', 0) > item.get('percentage', 0) else False
+            'x': item.get('absolute', 0) | item.get('percentage', 0) | item.get('average', 0),
+            'absolute': True if item.get('absolute', 0) > item.get('percentage', 0) | item.get('average', 0) else False,
+            'average': True if item.get('average', 0)  > item.get('percentage', 0) | item.get('absolute', 0) else False
         })
         id_to_name[type_id] = item.get(_type + '_name')
     return query_list, id_to_name
