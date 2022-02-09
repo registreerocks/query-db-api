@@ -70,6 +70,8 @@ def _get_rsvp(result):
 
 def _get_cell(id):
     event_query = _get_query(id)
+    if (event_query[1] == 409):
+        return event_query
     addresses = event_query["query"]["responses"].keys()
     student_details = _get_student_details(addresses)
     return [student["ident"][0].get("cell") for student in student_details if student["ident"][0].get("cell") != None]
