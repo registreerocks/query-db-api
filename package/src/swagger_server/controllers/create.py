@@ -6,6 +6,7 @@ import requests
 
 from .query import _query_bulk
 from .db import identifying_db as IDB
+from .helpers import _get_student_details
 
 
 def _add_responses(query_results):
@@ -72,14 +73,6 @@ def _filter_results_by_demographics(race_query, gender_query, query_response):
 
 def _get_first_not_none(array):
     return next((item for item in array if item is not None), False)
-
-
-def _get_student_details(addresses):
-    return list(IDB.aggregate([
-        {"$match": {"_id": {"$in": addresses}}},
-        {"$lookup": {"from": "identifying_db", "localField": "ident_id",
-                     "foreignField": "_id", "as": "ident"}}]))
-
 
 def _filter_by_race(student_details, races):
     return _filter_details_by_demographic(student_details, races, 'race')

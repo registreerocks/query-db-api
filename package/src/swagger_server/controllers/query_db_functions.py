@@ -6,7 +6,7 @@ from registree_auth import get_token_auth_header, requires_auth, requires_scope
 from .create import _add_responses, _query_degree
 from .db import query_details
 from .get import (_build_customer_result, _build_registree_result,
-                  _build_student_result, _get_query, _get_rsvp)
+                  _build_student_result, _get_query, _get_rsvp, _get_cell)
 from .helpers import _stringify_object_id, check_id
 from .update import (_add_attachments, _add_infos, _delete_attachments,
                      _expand_add_responses, _expand_query_degree,
@@ -189,6 +189,13 @@ def update_status(id, body):
         student_record = _set_status(body, result)
         query_details.update_one({'_id': ObjectId(id)}, {'$set': {'query.responses.' + body.get('student_address'): student_record}}, upsert=False)
         return id
+
+@requires_auth
+@requires_scope('recruiter', 'registree')
+@check_id
+def get_query_cell_numbers(id):
+    result = _get_cell(id)
+    return result
 
 def health_check():
     return _health_check()
