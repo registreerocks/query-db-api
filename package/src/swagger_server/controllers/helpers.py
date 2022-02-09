@@ -22,6 +22,6 @@ def _stringify_object_id(result):
 
 def _get_student_details(addresses):
     return list(IDB.aggregate([
-        {"$match": {"_id": {"$in": addresses}}},
+        {"$match": {"_id": {"$in": list(addresses)}}},
         {"$lookup": {"from": "identifying_db", "localField": "ident_id",
                      "foreignField": "_id", "as": "ident"}}]))
