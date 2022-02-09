@@ -1,9 +1,11 @@
 from src.swagger_server.controllers.get import (_build_customer_result,
                                                 _build_registree_result,
                                                 _build_student_result,
-                                                _compute_ratios, _get_rsvp)
+                                                _compute_ratios, _get_rsvp, _get_cell)
 
-from .helpers import _get_event, _get_query
+from .helpers import _get_event, _get_query, _get_student_details_cell
+
+import mock
 
 def test_build_customer_result():
     query_result = _get_query()
@@ -105,3 +107,14 @@ def test_compute_ratio():
 def test_get_rsvp():
     assert(_get_rsvp(_get_query()[0]) == 0)
     assert(_get_rsvp(_get_event()) == 1)
+
+
+@mock.patch('src.swagger_server.controllers.get._get_student_details')
+@mock.patch('src.swagger_server.controllers.get._get_query')
+def test_get_cell(query_result, student_details):
+    query_result.return_value = _get_query()[0]
+    student_details.return_value = _get_student_details_cell()
+
+    cell_numbers = _get_cell("5c89d28c42b09700010413f2")
+    assert(cell_numbers == ["0123456788", "0123456789"])
+
