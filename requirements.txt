@@ -4,4 +4,4 @@ pymongo
 pytest
 freezegun
 mock
-git+git://github.com/registreerocks/registree-auth.git
+git+https://github.com/registreerocks/registree-auth.git
