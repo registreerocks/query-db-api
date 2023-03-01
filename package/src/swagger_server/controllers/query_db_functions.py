@@ -56,7 +56,6 @@ def expand_query_degree(id, body):
                 'query.timestamp': datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M')
                 }
             }, upsert=False)
-        _notify_registree("Expand", old_event.get('customer_id'), id)
         return _get_query(id)
 
 @requires_auth
@@ -127,7 +126,6 @@ def query_degree(body):
         query['timestamp'] = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M')
         body['query'] = query
         _id = str(query_details.insert_one(body).inserted_id)
-        _notify_registree("New", body.get('customer_id'), _id)
         return _id
     except ValueError as e:
         return {'ERROR': str(e)}, 500
